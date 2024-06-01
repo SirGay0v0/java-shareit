@@ -1,6 +1,7 @@
 package ru.practicum.shareit.item.storage;
 
 import org.springframework.stereotype.Component;
+import org.springframework.util.StringUtils;
 import ru.practicum.shareit.item.model.Item;
 
 import java.util.HashMap;
@@ -42,8 +43,10 @@ public class ItemInMemoryStorage implements ItemStorage {
     @Override
     public List<Item> searchItems(String request) {
         return itemMap.values().stream()
-                .filter(item -> item.getName().toLowerCase().contains(request.toLowerCase()) ||
-                        item.getDescription().toLowerCase().contains(request.toLowerCase()))
+                .filter(item ->
+                        StringUtils.hasText(item.getName()) && item.getName().toLowerCase().contains(request.toLowerCase()) ||
+                                StringUtils.hasText(item.getDescription()) && item.getDescription().toLowerCase().contains(request.toLowerCase())
+                )
                 .collect(Collectors.toList());
     }
 }

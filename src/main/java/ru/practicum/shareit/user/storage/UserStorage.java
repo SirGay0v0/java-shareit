@@ -14,4 +14,6 @@ public interface UserStorage {
     User getById(long id);
 
     List<User> getAllUsers();
+
+    boolean getByEmail(String request);
 }

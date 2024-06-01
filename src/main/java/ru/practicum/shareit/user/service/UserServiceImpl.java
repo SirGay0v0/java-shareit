@@ -1,19 +1,17 @@
 package ru.practicum.shareit.user.service;
 
-import lombok.AllArgsConstructor;
-import org.springframework.stereotype.Component;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
 import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.storage.UserStorage;
 import ru.practicum.shareit.user.validation.UserValidator;
 
 import java.util.List;
 
-@Component
-@AllArgsConstructor
+@Service
+@RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
-
     private final UserStorage storage;
-
     private final UserValidator validator;
 
     @Override

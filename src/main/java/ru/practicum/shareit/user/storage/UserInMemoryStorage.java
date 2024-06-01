@@ -1,12 +1,10 @@
 package ru.practicum.shareit.user.storage;
 
 import org.springframework.stereotype.Component;
+import org.springframework.util.StringUtils;
 import ru.practicum.shareit.user.model.User;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Component
 public class UserInMemoryStorage implements UserStorage {
@@ -40,5 +38,13 @@ public class UserInMemoryStorage implements UserStorage {
     @Override
     public List<User> getAllUsers() {
         return new ArrayList<>(userMap.values());
+    }
+
+    @Override
+    public boolean getByEmail(String request) {
+        Optional<User> opt = userMap.values().stream()
+                .filter(user -> StringUtils.hasText(user.getEmail()) && user.getEmail().equals(request))
+                .findFirst();
+        return opt.isPresent();
     }
 }

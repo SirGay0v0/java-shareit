@@ -1,9 +1,9 @@
 package ru.practicum.shareit.item;
 
-import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
-import ru.practicum.shareit.item.dto.ItemForOwner;
-import ru.practicum.shareit.item.dto.ItemRequest;
+import ru.practicum.shareit.item.dto.ItemForOwnerDto;
+import ru.practicum.shareit.item.dto.ItemRequestDto;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.service.ItemService;
 
@@ -13,7 +13,7 @@ import java.util.List;
  * TODO Sprint add-controllers.
  */
 @RestController
-@AllArgsConstructor
+@RequiredArgsConstructor
 @RequestMapping("/items")
 public class ItemController {
 
@@ -21,16 +21,16 @@ public class ItemController {
 
     @PostMapping
     public Item add(@RequestHeader("X-Sharer-User-Id") long ownerId,
-                    @RequestBody ItemRequest itemRequest) {
-        return service.addNewItem(ownerId, itemRequest);
+                    @RequestBody ItemRequestDto itemRequestDto) {
+        return service.addNewItem(ownerId, itemRequestDto);
 
     }
 
     @PatchMapping("/{itemId}")
     public Item update(@RequestHeader("X-Sharer-User-Id") long ownerId,
                        @PathVariable long itemId,
-                       @RequestBody ItemRequest itemRequest) {
-        return service.updateItem(ownerId, itemId, itemRequest);
+                       @RequestBody ItemRequestDto itemRequestDto) {
+        return service.updateItem(ownerId, itemId, itemRequestDto);
     }
 
     @GetMapping("/{itemId}")
@@ -40,7 +40,7 @@ public class ItemController {
 
 
     @GetMapping
-    public List<ItemForOwner> getAllById(@RequestHeader("X-Sharer-User-Id") long ownerId) {
+    public List<ItemForOwnerDto> getAllById(@RequestHeader("X-Sharer-User-Id") long ownerId) {
         return service.getAllById(ownerId);
     }
 
