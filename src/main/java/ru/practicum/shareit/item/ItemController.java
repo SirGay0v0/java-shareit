@@ -2,6 +2,7 @@ package ru.practicum.shareit.item;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
+import ru.practicum.shareit.exception.AccessDeniedException;
 import ru.practicum.shareit.item.dto.ItemForOwnerDto;
 import ru.practicum.shareit.item.dto.ItemRequestDto;
 import ru.practicum.shareit.item.model.Item;
@@ -29,7 +30,7 @@ public class ItemController {
     @PatchMapping("/{itemId}")
     public Item update(@RequestHeader("X-Sharer-User-Id") long ownerId,
                        @PathVariable long itemId,
-                       @RequestBody ItemRequestDto itemRequestDto) {
+                       @RequestBody ItemRequestDto itemRequestDto) throws AccessDeniedException {
         return service.updateItem(ownerId, itemId, itemRequestDto);
     }
 

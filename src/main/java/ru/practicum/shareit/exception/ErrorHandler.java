@@ -25,5 +25,11 @@ public class ErrorHandler {
     public ErrorResponse handleInternalServerError(final InternalServerException exception) {
         return new ErrorResponse(exception.getMessage());
     }
+
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.FORBIDDEN)
+    public ErrorResponse handleAccessDenied(final AccessDeniedException exception) {
+        return new ErrorResponse(exception.getMessage());
+    }
 }
 

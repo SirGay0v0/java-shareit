@@ -18,7 +18,7 @@ public class UserValidator {
 
     public void createValidate(User user) {
 
-        if (storage.getByEmail(user.getEmail())) {
+        if (storage.findByEmail(user.getEmail()).isPresent()) {
             throw new InternalServerException("User with email: " + user.getEmail() + " already exist");
         }
 
@@ -34,7 +34,7 @@ public class UserValidator {
     }
 
     public void updateValidate(User user) {
-        List<User> list = storage.getAllUsers();
+        List<User> list = storage.findAll();
         for (User users : list) {
             if (users.getEmail().equals(user.getEmail())) {
                 throw new InternalServerException("User with email: " + user.getEmail() + " already exist");

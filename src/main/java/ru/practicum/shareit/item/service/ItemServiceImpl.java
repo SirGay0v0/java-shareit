@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
+import ru.practicum.shareit.exception.AccessDeniedException;
 import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.item.dto.ItemForOwnerDto;
 import ru.practicum.shareit.item.dto.ItemRequestDto;
@@ -13,6 +14,7 @@ import ru.practicum.shareit.item.validation.ItemValidator;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -27,36 +29,45 @@ public class ItemServiceImpl implements ItemService {
         validator.createValidate(itemRequestDto, ownerId);
         Item item = mapper.map(itemRequestDto, Item.class);
         item.setOwnerId(ownerId);
-        return storage.create(item);
+        return storage.save(item);
     }
 
     @Override
-    public Item updateItem(long ownerId, long itemId, ItemRequestDto itemRequestDto) {
-        Item oldItem = storage.getById(itemId);
-        if (oldItem.getOwnerId().equals(ownerId)) {
-            if (itemRequestDto.getName() != null) {
-                oldItem.setName(itemRequestDto.getName());
+    public Item updateItem(long ownerId, long itemId, ItemRequestDto itemRequestDto) throws AccessDeniedException {
+        Optional<Item> oldItemOpt = storage.findById(itemId);
+        if (oldItemOpt.isPresent()) {
+            if (oldItemOpt.get().getOwnerId().equals(ownerId)) {
+                if (itemRequestDto.getName() != null) {
+                    oldItemOpt.get().setName(itemRequestDto.getName());
+                }
+                if (itemRequestDto.getDescription() != null) {
+                    oldItemOpt.get().setDescription(itemRequestDto.getDescription());
+                }
+                if (itemRequestDto.getAvailable() != null) {
+                    oldItemOpt.get().setAvailable(itemRequestDto.getAvailable());
+                }
+            } else {
+                throw new AccessDeniedException("User with ID " + ownerId + " don't have access to item with ID: " + itemId);
             }
-            if (itemRequestDto.getDescription() != null) {
-                oldItem.setDescription(itemRequestDto.getDescription());
-            }
-            if (itemRequestDto.getAvailable() != null) {
-                oldItem.setAvailable(itemRequestDto.getAvailable());
-            }
-        } else throw new NotFoundException("User with ID " + ownerId + " don't have access to item with ID: " + itemId);
-        return storage.update(oldItem);
+        } else throw new NotFoundException("No such item with ID: " + ownerId);
+        return storage.save(oldItemOpt.get());
     }
 
     @Override
     public Item getItemById(long itemId) {
-        return storage.getById(itemId);
+        Optional<Item> item = storage.findById(itemId);
+        if (item.isPresent()) {
+            return item.get();
+        } else throw new NotFoundException("No such item with ID: " + itemId);
+
     }
 
     @Override
-    public List<ItemForOwnerDto> getAllById(long ownerId) {
-        return storage.getAllById(ownerId).stream()
+    public List<ItemForOwnerDto> getAllById(Long ownerId) {
+        List<ItemForOwnerDto> list = storage.findByOwnerId(ownerId).stream()
                 .map(item -> mapper.map(item, ItemForOwnerDto.class))
                 .collect(Collectors.toList());
+        return list;
     }
 
     @Override
@@ -64,7 +75,9 @@ public class ItemServiceImpl implements ItemService {
         if (!StringUtils.hasText(request)) {
             return Collections.emptyList();
         } else {
-            return storage.searchItems(request).stream()
+            return storage.findByNameContainsIgnoringCaseOrDescriptionContainsIgnoringCase(
+                    request, request)
+                    .stream()
                     .filter(Item::getAvailable)
                     .collect(Collectors.toList());
         }
