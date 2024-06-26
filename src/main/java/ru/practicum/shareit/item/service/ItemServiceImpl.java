@@ -26,7 +26,7 @@ public class ItemServiceImpl implements ItemService {
 
     @Override
     public Item addNewItem(long ownerId, ItemRequestDto itemRequestDto) {
-        validator.createValidate(itemRequestDto, ownerId);
+        validator.validateByExistingUser(ownerId);
         Item item = mapper.map(itemRequestDto, Item.class);
         item.setOwnerId(ownerId);
         return storage.save(item);

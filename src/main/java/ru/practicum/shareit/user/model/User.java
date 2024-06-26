@@ -1,18 +1,25 @@
 package ru.practicum.shareit.user.model;
 
-import lombok.AccessLevel;
-import lombok.Data;
-import lombok.RequiredArgsConstructor;
+import lombok.*;
 import lombok.experimental.Accessors;
 import lombok.experimental.FieldDefaults;
+import org.hibernate.annotations.Check;
+import org.hibernate.validator.constraints.Length;
+import org.hibernate.validator.constraints.UniqueElements;
+import ru.practicum.shareit.booking.model.Booking;
 
 import javax.persistence.*;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.Pattern;
+import java.util.Set;
 
 /**
  * TODO Sprint add-controllers.
  */
 
-@Data
+@Getter
+@Setter
+@EqualsAndHashCode
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @Accessors(chain = true)
 @Entity
@@ -24,5 +31,9 @@ public class User {
     @Column(name = "name")
     String name;
     @Column(name = "email")
+    @NotBlank
+    @Pattern(regexp = "^.+@.+\\.com")
     String email;
+    @OneToMany(mappedBy = "booker")
+    Set<Booking> bookings;
 }

@@ -1,14 +1,25 @@
 package ru.practicum.shareit.booking.service;
 
 import lombok.RequiredArgsConstructor;
+import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
+import ru.practicum.shareit.booking.dto.CreateBookingDto;
+import ru.practicum.shareit.booking.dto.RequestBookingDto;
 import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.model.Status;
 import ru.practicum.shareit.booking.storage.BookingStorage;
+import ru.practicum.shareit.booking.validation.BookingValidator;
 import ru.practicum.shareit.exception.NotFoundException;
+import ru.practicum.shareit.item.model.Item;
+import ru.practicum.shareit.item.storage.ItemStorage;
+import ru.practicum.shareit.user.model.User;
+import ru.practicum.shareit.user.storage.UserStorage;
 
-import java.time.LocalDate;
-import java.util.*;
+import java.time.LocalDateTime;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -16,11 +27,22 @@ import java.util.stream.Collectors;
 public class BookingServiceImpl implements BookingService {
 
     private final BookingStorage storage;
+    private final ModelMapper mapper;
+    private final BookingValidator validator;
+    private final ItemStorage itemStorage;
+    private final UserStorage userStorage;
 
     @Override
-    public Booking createBooking(Booking booking) {
+    public RequestBookingDto createBooking(CreateBookingDto createDto, Long bookerId) {
+//        validator.validate(createDto.getItemId(), createDto, bookerId);
+//        Item item = itemStorage.findById(createDto.getItemId()).get();
+//        User user = userStorage.findById(bookerId).get();
+        Booking booking = mapper.map(createDto, Booking.class);
+//        booking.setUser(user);
+//        booking.setItem(item);
+        booking.setStatus(Status.WAITING);
         storage.save(booking);
-        return booking;
+        return mapper.map(booking, RequestBookingDto.class);
     }
 
     @Override
@@ -49,7 +71,7 @@ public class BookingServiceImpl implements BookingService {
 
     @Override
     public List<Booking> getListBookingsByStatus(String state, Long bookerId) {
-        LocalDate localDateNow = LocalDate.now();
+        LocalDateTime localDateNow = LocalDateTime.now();
         List<Booking> resultList = storage.findByBookerId(bookerId);
         switch (state) {
             case "ALL": {

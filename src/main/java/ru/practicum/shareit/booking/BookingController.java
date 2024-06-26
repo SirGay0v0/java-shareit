@@ -1,26 +1,29 @@
 package ru.practicum.shareit.booking;
 
-import org.hibernate.annotations.GeneratorType;
+import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
+import ru.practicum.shareit.booking.dto.CreateBookingDto;
+import ru.practicum.shareit.booking.dto.RequestBookingDto;
 import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.service.BookingService;
-import ru.practicum.shareit.user.model.User;
 
+import javax.validation.Valid;
 import java.util.List;
-import java.util.Set;
 
 /**
  * TODO Sprint add-bookings.
  */
 @RestController
 @RequestMapping(path = "/bookings")
+@RequiredArgsConstructor
 public class BookingController {
 
-    private BookingService service;
+    private final BookingService service;
 
     @PostMapping
-    public Booking add(@RequestBody Booking booking) {
-        return service.createBooking(booking);
+    public RequestBookingDto add(@RequestBody CreateBookingDto createDto,
+                                 @RequestHeader("X-Sharer-User-Id") Long bookerId) {
+        return service.createBooking(createDto, bookerId);
     }
 
     @PatchMapping("/{bookingId}")
@@ -36,7 +39,7 @@ public class BookingController {
 
     @GetMapping
     public List<Booking> getListBookings(@RequestParam(defaultValue = "ALL") String state,
-                                        @RequestHeader("X-Sharer-User-Id") Long userId) {
+                                         @RequestHeader("X-Sharer-User-Id") Long userId) {
         return service.getListBookingsByStatus(state, userId);
     }
 

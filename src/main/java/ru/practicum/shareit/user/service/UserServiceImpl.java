@@ -1,39 +1,42 @@
 package ru.practicum.shareit.user.service;
 
 import lombok.RequiredArgsConstructor;
+import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.exception.NotFoundException;
+import ru.practicum.shareit.user.dto.UserRequestDto;
 import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.storage.UserStorage;
 import ru.practicum.shareit.user.validation.UserValidator;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
     private final UserStorage storage;
     private final UserValidator validator;
+    private final ModelMapper mapper;
 
     @Override
-    public User create(User user) {
-        validator.createValidate(user);
-        return storage.save(user);
+    public UserRequestDto create(User user) {
+        return mapper.map(storage.save(user), UserRequestDto.class);
     }
 
     @Override
-    public User update(long userId, User newUser) {
+    public UserRequestDto update(long userId, User newUser) {
         Optional<User> oldUser = storage.findById(userId);
         if (oldUser.isPresent()) {
             if (newUser.getName() != null) {
                 oldUser.get().setName(newUser.getName());
             }
             if (newUser.getEmail() != null && !newUser.getEmail().equals(oldUser.get().getEmail())) {
-                validator.updateValidate(newUser);
+                validator.validate(newUser);
                 oldUser.get().setEmail(newUser.getEmail());
             }
-            return storage.save(oldUser.get());
+            return mapper.map(storage.save(oldUser.get()), UserRequestDto.class);
         } else {
             throw new NotFoundException("No such user with ID: " + userId);
         }
@@ -45,15 +48,17 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public User getById(long userId) {
+    public UserRequestDto getById(long userId) {
         Optional<User> opt = storage.findById(userId);
         if (opt.isPresent()) {
-            return opt.get();
+            return mapper.map(opt.get(), UserRequestDto.class);
         } else throw new NotFoundException("Field id is incorrect");
     }
 
     @Override
-    public List<User> getAll() {
-        return storage.findAll();
+    public List<UserRequestDto> getAll() {
+        return storage.findAll().stream()
+                .map(user -> mapper.map(user, UserRequestDto.class))
+                .collect(Collectors.toList());
     }
 }

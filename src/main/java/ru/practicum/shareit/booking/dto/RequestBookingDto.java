@@ -1,14 +1,15 @@
 package ru.practicum.shareit.booking.dto;
 
-import lombok.*;
+import lombok.AccessLevel;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.Setter;
 import lombok.experimental.Accessors;
 import lombok.experimental.FieldDefaults;
 import ru.practicum.shareit.booking.model.Status;
 import ru.practicum.shareit.item.model.Item;
+import ru.practicum.shareit.user.model.User;
 
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Getter
@@ -16,8 +17,11 @@ import java.time.LocalDateTime;
 @EqualsAndHashCode
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @Accessors(chain = true)
-public class CreateBookingDto {
+public class RequestBookingDto {
+    Long id;
     LocalDateTime start;
     LocalDateTime end;
-    Long itemId;
+    Status status;
+    User booker;
+    Item item;
 }

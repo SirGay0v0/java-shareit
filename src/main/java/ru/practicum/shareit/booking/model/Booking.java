@@ -1,17 +1,21 @@
 package ru.practicum.shareit.booking.model;
 
-import lombok.AccessLevel;
-import lombok.Data;
+import lombok.*;
 import lombok.experimental.Accessors;
 import lombok.experimental.FieldDefaults;
+import ru.practicum.shareit.item.model.Item;
+import ru.practicum.shareit.user.model.User;
+
 
 import javax.persistence.*;
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 /**
  * TODO Sprint add-bookings.
  */
-@Data
+@Getter
+@Setter
+@EqualsAndHashCode
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @Accessors(chain = true)
 @Entity
@@ -21,14 +25,14 @@ public class Booking {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     Long id;
     @Column(name = "start_time")
-    LocalDate start;
+    LocalDateTime start;
     @Column(name = "end_time")
-    LocalDate end;
+    LocalDateTime end;
     @Column(name = "status")
     @Enumerated(EnumType.STRING)
     Status status;
-    @Column(name = "booker_id")
-    Long bookerId;
-    @Column(name = "item_id")
-    Long itemId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    User booker;
+    @OneToOne
+    Item item;
 }
