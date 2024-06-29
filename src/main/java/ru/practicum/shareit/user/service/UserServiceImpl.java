@@ -26,7 +26,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public UserRequestDto update(long userId, User newUser) {
+    public UserRequestDto update(Long userId, User newUser) {
         Optional<User> oldUser = storage.findById(userId);
         if (oldUser.isPresent()) {
             if (newUser.getName() != null) {
@@ -43,12 +43,12 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public void delete(long userId) {
+    public void delete(Long userId) {
         storage.deleteById(userId);
     }
 
     @Override
-    public UserRequestDto getById(long userId) {
+    public UserRequestDto getById(Long userId) {
         Optional<User> opt = storage.findById(userId);
         if (opt.isPresent()) {
             return mapper.map(opt.get(), UserRequestDto.class);

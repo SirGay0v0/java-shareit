@@ -31,8 +31,8 @@ public class Booking {
     @Column(name = "status")
     @Enumerated(EnumType.STRING)
     Status status;
-    @ManyToOne(fetch = FetchType.LAZY)
+    @OneToOne(fetch = FetchType.LAZY)
     User booker;
-    @OneToOne
+    @OneToOne(fetch = FetchType.LAZY)
     Item item;
 }

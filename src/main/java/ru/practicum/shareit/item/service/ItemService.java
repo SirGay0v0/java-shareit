@@ -8,11 +8,11 @@ import ru.practicum.shareit.item.model.Item;
 import java.util.List;
 
 public interface ItemService {
-    Item addNewItem(long ownerId, ItemRequestDto itemRequestDto);
+    Item addNewItem(Long ownerId, ItemRequestDto itemRequestDto);
 
-    Item updateItem(long ownerId, long itemId, ItemRequestDto itemRequestDto) throws AccessDeniedException;
+    Item updateItem(Long ownerId, Long itemId, ItemRequestDto itemRequestDto) throws AccessDeniedException;
 
-    Item getItemById(long itemId);
+    ItemForOwnerDto getItemById(Long itemId, Long userId);
 
     List<ItemForOwnerDto> getAllById(Long ownerId);
 

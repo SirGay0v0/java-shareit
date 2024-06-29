@@ -32,8 +32,6 @@ public class User {
     String name;
     @Column(name = "email")
     @NotBlank
-    @Pattern(regexp = "^.+@.+\\.com")
+    @Pattern(regexp = "^.+@.+\\..+")
     String email;
-    @OneToMany(mappedBy = "booker")
-    Set<Booking> bookings;
 }

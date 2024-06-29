@@ -22,28 +22,29 @@ public class ItemController {
     private final ItemService service;
 
     @PostMapping
-    public Item add(@RequestHeader("X-Sharer-User-Id") long ownerId,
+    public Item add(@RequestHeader("X-Sharer-User-Id") Long ownerId,
                     @Valid @RequestBody ItemRequestDto itemRequestDto) {
         return service.addNewItem(ownerId, itemRequestDto);
 
     }
 
     @PatchMapping("/{itemId}")
-    public Item update(@RequestHeader("X-Sharer-User-Id") long ownerId,
+    public Item update(@RequestHeader("X-Sharer-User-Id") Long ownerId,
                        @PathVariable long itemId,
                        @RequestBody ItemRequestDto itemRequestDto) throws AccessDeniedException {
         return service.updateItem(ownerId, itemId, itemRequestDto);
     }
 
     @GetMapping("/{itemId}")
-    public Item getById(@PathVariable long itemId) {
-        return service.getItemById(itemId);
+    public ItemForOwnerDto getById(@PathVariable long itemId,
+                        @RequestHeader("X-Sharer-User-Id") Long userId) {
+        return service.getItemById(itemId, userId);
     }
 
 
     @GetMapping
-    public List<ItemForOwnerDto> getAllById(@RequestHeader("X-Sharer-User-Id") long ownerId) {
-        return service.getAllById(ownerId);
+    public List<ItemForOwnerDto> getAllById(@RequestHeader("X-Sharer-User-Id") Long userId) {
+        return service.getAllById(userId);
     }
 
     @GetMapping("/search")
