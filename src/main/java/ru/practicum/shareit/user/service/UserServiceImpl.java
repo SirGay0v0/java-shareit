@@ -3,14 +3,12 @@ package ru.practicum.shareit.user.service;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
-import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.user.dto.UserRequestDto;
 import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.storage.UserStorage;
 import ru.practicum.shareit.user.validation.UserValidator;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -22,24 +20,23 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserRequestDto create(User user) {
-        return mapper.map(storage.save(user), UserRequestDto.class);
+        return mapper.map(
+                storage.save(user),
+                UserRequestDto.class);
     }
 
     @Override
     public UserRequestDto update(Long userId, User newUser) {
-        Optional<User> oldUser = storage.findById(userId);
-        if (oldUser.isPresent()) {
-            if (newUser.getName() != null) {
-                oldUser.get().setName(newUser.getName());
-            }
-            if (newUser.getEmail() != null && !newUser.getEmail().equals(oldUser.get().getEmail())) {
-                validator.validate(newUser);
-                oldUser.get().setEmail(newUser.getEmail());
-            }
-            return mapper.map(storage.save(oldUser.get()), UserRequestDto.class);
-        } else {
-            throw new NotFoundException("No such user with ID: " + userId);
+        User oldUser = validator.validateById(userId);
+        if (newUser.getName() != null) {
+            oldUser.setName(newUser.getName());
         }
+        if (newUser.getEmail() != null && !newUser.getEmail().equals(oldUser.getEmail())) {
+            oldUser.setEmail(validator.validateByEmail(newUser));
+        }
+        return mapper.map(
+                storage.save(oldUser),
+                UserRequestDto.class);
     }
 
     @Override
@@ -49,10 +46,8 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserRequestDto getById(Long userId) {
-        Optional<User> opt = storage.findById(userId);
-        if (opt.isPresent()) {
-            return mapper.map(opt.get(), UserRequestDto.class);
-        } else throw new NotFoundException("Field id is incorrect");
+        User user = validator.validateById(userId);
+        return mapper.map(user, UserRequestDto.class);
     }
 
     @Override

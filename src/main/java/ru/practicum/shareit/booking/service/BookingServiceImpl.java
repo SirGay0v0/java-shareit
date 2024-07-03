@@ -4,7 +4,9 @@ import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.booking.dto.CreateBookingDto;
+import ru.practicum.shareit.booking.dto.ItemBookingDto;
 import ru.practicum.shareit.booking.dto.RequestBookingDto;
+import ru.practicum.shareit.booking.dto.UserBookingDto;
 import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.model.Status;
 import ru.practicum.shareit.booking.storage.BookingStorage;
@@ -12,17 +14,12 @@ import ru.practicum.shareit.booking.validation.BookingValidator;
 import ru.practicum.shareit.exception.InternalServerException;
 import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.exception.ValidationException;
-import ru.practicum.shareit.item.dto.ItemBookingDto;
 import ru.practicum.shareit.item.model.Item;
-import ru.practicum.shareit.item.storage.ItemStorage;
-import ru.practicum.shareit.user.dto.UserBookingDto;
 import ru.practicum.shareit.user.model.User;
-import ru.practicum.shareit.user.storage.UserStorage;
 
 import java.time.LocalDateTime;
 import java.util.Comparator;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -32,8 +29,6 @@ public class BookingServiceImpl implements BookingService {
     private final BookingStorage storage;
     private final ModelMapper mapper;
     private final BookingValidator validator;
-    private final ItemStorage itemStorage;
-    private final UserStorage userStorage;
 
     @Override
     public RequestBookingDto createBooking(CreateBookingDto createDto, Long bookerId) {
@@ -43,180 +38,121 @@ public class BookingServiceImpl implements BookingService {
 
         if (!user.getId().equals(item.getOwnerId())) {
 
-            UserBookingDto userBookingDto = mapper.map(
-                    user,
-                    UserBookingDto.class);
-            ItemBookingDto itemBookingDto = mapper.map(
-                    item,
-                    ItemBookingDto.class);
-
+            UserBookingDto userBookingDto = mapper.map(user, UserBookingDto.class);
+            ItemBookingDto itemBookingDto = mapper.map(item, ItemBookingDto.class);
             Booking booking = mapper.map(createDto, Booking.class);
+
             booking.setBooker(user)
                     .setItem(item)
                     .setStatus(Status.WAITING)
                     .setId(null);
 
-            RequestBookingDto requestBookingDto = mapper.map(storage.save(booking), RequestBookingDto.class);
-            requestBookingDto.setItem(itemBookingDto)
-                    .setBooker(userBookingDto);
+            RequestBookingDto requestBookingDto = mapper.map(
+                    storage.save(booking),
+                    RequestBookingDto.class);
+
+            requestBookingDto.setItem(itemBookingDto);
+            requestBookingDto.setBooker(userBookingDto);
+
             return requestBookingDto;
-        } else throw new NotFoundException("Owner can not be booker");
+        } else throw new NotFoundException("Owner can't book his own items");
     }
 
     @Override
     public RequestBookingDto confirm(Long bookingId, boolean approve, Long ownerId) {
-        Optional<Booking> booking = storage.findById(bookingId);
-        if (booking.isPresent()) {
-            if (ownerId.equals(booking.get().getItem().getOwnerId())) {
-                if (approve) {
-                    if (booking.get().getStatus().equals(Status.APPROVED)) {
-                        throw new ValidationException("Booking already approved");
-                    } else {
-                        booking.get().setStatus(Status.APPROVED);
-                    }
+        Booking booking = validator.validateBooking(bookingId);
+        if (ownerId.equals(booking.getItem().getOwnerId())) {
+            if (approve) {
+                if (booking.getStatus().equals(Status.APPROVED)) {
+                    throw new ValidationException("Booking already approved");
                 } else {
-                    booking.get().setStatus(Status.REJECTED);
+                    booking.setStatus(Status.APPROVED);
                 }
             } else {
-                throw new NotFoundException("Only owner of item can change status");
+                booking.setStatus(Status.REJECTED);
             }
-            storage.save(booking.get());
-            RequestBookingDto request = mapper.map(booking.get(), RequestBookingDto.class);
-            ItemBookingDto item = mapper.map(booking.get().getItem(), ItemBookingDto.class);
-            UserBookingDto booker = new UserBookingDto();
-            booker.setId(booking.get().getBooker().getId());
-            request.setBooker(booker).setItem(item);
-            return request;
-        } else throw new NotFoundException("No such item with id: " + bookingId);
+        } else {
+            throw new NotFoundException("Only owner of item can change status");
+        }
+        storage.save(booking);
+
+        RequestBookingDto request = mapper.map(booking, RequestBookingDto.class);
+        ItemBookingDto item = mapper.map(booking.getItem(), ItemBookingDto.class);
+        UserBookingDto booker = mapper.map(booking.getBooker(), UserBookingDto.class);
+
+
+        return request.setBooker(booker).setItem(item);
     }
 
     @Override
     public RequestBookingDto getBookingById(Long bookingId, Long userId) {
-        Optional<Booking> bookingOpt = storage.findById(bookingId);
-        Optional<User> userOpt = userStorage.findById(userId);
-        if (bookingOpt.isPresent()) {
-            if (userOpt.isPresent() &&
-                    (bookingOpt.get().getBooker().getId().equals(userId) ||
-                            bookingOpt.get().getItem().getOwnerId().equals(userId))) {
-                return mapper.map(bookingOpt.get(), RequestBookingDto.class);
-            } else {
-                throw new NotFoundException("User with id " + userId + "haven't access to this booking");
-            }
+        validator.validateBooker(userId);
+        Booking book = validator.validateBooking(bookingId);
+        if (book.getBooker().getId().equals(userId) ||
+                book.getItem().getOwnerId().equals(userId)) {
+            return mapper.map(book, RequestBookingDto.class);
         } else {
-            throw new NotFoundException("No such item with id: " + bookingId);
+            throw new NotFoundException("User with id " + userId + "haven't access to this booking");
         }
     }
 
     @Override
     public List<RequestBookingDto> getListUserBookingsByStatus(String state, Long bookerId) {
-        LocalDateTime localDateNow = LocalDateTime.now();
-        if (!userStorage.existsById(bookerId)) {
-            throw new NotFoundException("No such user with id " + bookerId);
-        }
+        validator.validateBooker(bookerId);
         List<Booking> resultList = storage.findByBookerId(bookerId);
-        switch (state) {
-            case "ALL": {
-                return resultList.stream()
-                        .map(booking -> mapper.map(booking, RequestBookingDto.class))
-                        .sorted(Comparator.comparing(RequestBookingDto::getStart).reversed())
-                        .collect(Collectors.toList());
-            }
-            case "CURRENT": {
-                return resultList.stream()
-                        .filter(booking -> booking.getStart().isBefore(localDateNow) &&
-                                booking.getEnd().isAfter(localDateNow))
-                        .map(booking -> mapper.map(booking, RequestBookingDto.class))
-                        .sorted(Comparator.comparing(RequestBookingDto::getStart).reversed())
-                        .collect(Collectors.toList());
-            }
-            case "**PAST**": {
-                return resultList.stream()
-                        .filter(booking -> booking.getEnd().isBefore(localDateNow))
-                        .map(booking -> mapper.map(booking, RequestBookingDto.class))
-                        .sorted(Comparator.comparing(RequestBookingDto::getStart).reversed())
-                        .collect(Collectors.toList());
-            }
-            case "FUTURE": {
-                return resultList.stream()
-                        .filter(booking -> booking.getStart().isAfter(localDateNow))
-                        .map(booking -> mapper.map(booking, RequestBookingDto.class))
-                        .sorted(Comparator.comparing(RequestBookingDto::getStart).reversed())
-                        .collect(Collectors.toList());
-            }
-            case "WAITING": {
-                return resultList.stream()
-                        .filter(booking -> booking.getStatus().equals(Status.WAITING))
-                        .map(booking -> mapper.map(booking, RequestBookingDto.class))
-                        .sorted(Comparator.comparing(RequestBookingDto::getStart).reversed())
-                        .collect(Collectors.toList());
-            }
-            case "REJECTED": {
-                return resultList.stream()
-                        .filter(booking -> booking.getStatus().equals(Status.REJECTED))
-                        .map(booking -> mapper.map(booking, RequestBookingDto.class))
-                        .sorted(Comparator.comparing(RequestBookingDto::getStart).reversed())
-                        .collect(Collectors.toList());
-            }
-            default: {
-                throw new InternalServerException("Unknown state: " + state);
-            }
-        }
+        return resultByState(state, resultList);
     }
 
     @Override
     public List<RequestBookingDto> getListOwnerBookingsByStatus(String state, Long ownerId) {
-        LocalDateTime localDateNow = LocalDateTime.now();
-        if (!userStorage.existsById(ownerId)) {
-            throw new NotFoundException("No such user with id " + ownerId);
-        }
+        validator.validateBooker(ownerId);
         List<Booking> resultList = storage.findAllBookingsByItemOwnerId(ownerId);
+        return resultByState(state, resultList);
+    }
 
+    private List<RequestBookingDto> resultByState(String state, List<Booking> resultList) {
         switch (state) {
             case "ALL": {
-                return resultList.stream()
-                        .map(booking -> mapper.map(booking, RequestBookingDto.class))
-                        .sorted(Comparator.comparing(RequestBookingDto::getStart).reversed())
-                        .collect(Collectors.toList());
+                break;
             }
             case "CURRENT": {
-                return resultList.stream()
-                        .filter(booking -> booking.getStart().isBefore(localDateNow) &&
-                                booking.getEnd().isAfter(localDateNow))
-                        .map(booking -> mapper.map(booking, RequestBookingDto.class))
-                        .sorted(Comparator.comparing(RequestBookingDto::getStart).reversed())
+                resultList = resultList.stream()
+                        .filter(booking -> booking.getStart().isBefore(LocalDateTime.now()) &&
+                                booking.getEnd().isAfter(LocalDateTime.now()))
                         .collect(Collectors.toList());
+                break;
             }
-            case "**PAST**": {
-                return resultList.stream()
-                        .filter(booking -> booking.getEnd().isBefore(localDateNow))
-                        .map(booking -> mapper.map(booking, RequestBookingDto.class))
-                        .sorted(Comparator.comparing(RequestBookingDto::getStart).reversed())
+            case "PAST": {
+                resultList = resultList.stream()
+                        .filter(booking -> booking.getEnd().isBefore(LocalDateTime.now()))
                         .collect(Collectors.toList());
+                break;
             }
             case "FUTURE": {
-                return resultList.stream()
-                        .filter(booking -> booking.getStart().isAfter(localDateNow))
-                        .map(booking -> mapper.map(booking, RequestBookingDto.class))
-                        .sorted(Comparator.comparing(RequestBookingDto::getStart).reversed())
+                resultList = resultList.stream()
+                        .filter(booking -> booking.getStart().isAfter(LocalDateTime.now()))
                         .collect(Collectors.toList());
+                break;
             }
             case "WAITING": {
-                return resultList.stream()
+                resultList = resultList.stream()
                         .filter(booking -> booking.getStatus().equals(Status.WAITING))
-                        .map(booking -> mapper.map(booking, RequestBookingDto.class))
-                        .sorted(Comparator.comparing(RequestBookingDto::getStart).reversed())
                         .collect(Collectors.toList());
+                break;
             }
             case "REJECTED": {
-                return resultList.stream()
+                resultList = resultList.stream()
                         .filter(booking -> booking.getStatus().equals(Status.REJECTED))
-                        .map(booking -> mapper.map(booking, RequestBookingDto.class))
-                        .sorted(Comparator.comparing(RequestBookingDto::getStart).reversed())
                         .collect(Collectors.toList());
+                break;
             }
             default: {
                 throw new InternalServerException("Unknown state: " + state);
             }
         }
+        return resultList.stream()
+                .map(booking -> mapper.map(booking, RequestBookingDto.class))
+                .sorted(Comparator.comparing(RequestBookingDto::getStart).reversed())
+                .collect(Collectors.toList());
     }
 }

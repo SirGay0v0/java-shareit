@@ -1,13 +1,14 @@
 package ru.practicum.shareit.item.dto;
 
-import lombok.EqualsAndHashCode;
+import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.experimental.FieldDefaults;
 
 @Getter
 @Setter
-@EqualsAndHashCode
+@FieldDefaults(level = AccessLevel.PRIVATE)
 public class LastBookingDto {
-    private Long id;
-    private Long bookerId;
+    Long id;
+    Long bookerId;
 }

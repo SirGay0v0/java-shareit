@@ -1,6 +1,8 @@
 package ru.practicum.shareit.item.service;
 
 import ru.practicum.shareit.exception.AccessDeniedException;
+import ru.practicum.shareit.item.comments.dto.CreateCommentDto;
+import ru.practicum.shareit.item.comments.dto.RequestCommentDto;
 import ru.practicum.shareit.item.dto.ItemForOwnerDto;
 import ru.practicum.shareit.item.dto.ItemRequestDto;
 import ru.practicum.shareit.item.model.Item;
@@ -17,4 +19,6 @@ public interface ItemService {
     List<ItemForOwnerDto> getAllById(Long ownerId);
 
     List<Item> searchItems(String request);
+
+    RequestCommentDto addComment(CreateCommentDto comment, Long userId, Long itemId);
 }

@@ -3,6 +3,8 @@ package ru.practicum.shareit.booking.validation;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Component;
 import ru.practicum.shareit.booking.dto.CreateBookingDto;
+import ru.practicum.shareit.booking.model.Booking;
+import ru.practicum.shareit.booking.storage.BookingStorage;
 import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.exception.ValidationException;
 import ru.practicum.shareit.item.model.Item;
@@ -18,6 +20,7 @@ import java.util.Optional;
 public class BookingValidator {
     private final UserStorage userStorage;
     private final ItemStorage itemStorage;
+    private final BookingStorage bookingStorage;
 
     public Item validateItem(CreateBookingDto createDto) {
 
@@ -49,6 +52,15 @@ public class BookingValidator {
             throw new NotFoundException("No such user with ID: " + bookerId);
         } else {
             return userOpt.get();
+        }
+    }
+
+    public Booking validateBooking(Long bookingId) {
+        Optional<Booking> bookingOpt = bookingStorage.findById(bookingId);
+        if (bookingOpt.isEmpty()) {
+            throw new NotFoundException("No such booking with ID: " + bookingId);
+        } else {
+            return bookingOpt.get();
         }
     }
 }

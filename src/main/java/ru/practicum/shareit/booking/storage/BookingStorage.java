@@ -16,5 +16,5 @@ public interface BookingStorage extends JpaRepository<Booking, Long> {
 
 
     @Query(value = "select b from Booking b join b.item i where i.id = ?1")
-    List<Booking> findAllBookingByItemId(long itemId);
+    List<Booking> findAllBookingByItemId(Long itemId);
 }

@@ -4,6 +4,9 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.FieldDefaults;
+import ru.practicum.shareit.item.comments.dto.RequestCommentDto;
+
+import java.util.List;
 
 @Getter
 @Setter
@@ -15,4 +18,5 @@ public class ItemForOwnerDto {
     Boolean available;
     LastBookingDto lastBooking;
     NextBookingDto nextBooking;
+    List<RequestCommentDto> comments;
 }

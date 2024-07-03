@@ -16,8 +16,8 @@ import java.time.LocalDateTime;
 @Getter
 @Setter
 @EqualsAndHashCode
-@FieldDefaults(level = AccessLevel.PRIVATE)
 @Accessors(chain = true)
+@FieldDefaults(level = AccessLevel.PRIVATE)
 @Entity
 @Table(name = "booking")
 public class Booking {

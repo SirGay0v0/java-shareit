@@ -1,17 +1,15 @@
 package ru.practicum.shareit.user.model;
 
-import lombok.*;
+import lombok.AccessLevel;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.Setter;
 import lombok.experimental.Accessors;
 import lombok.experimental.FieldDefaults;
-import org.hibernate.annotations.Check;
-import org.hibernate.validator.constraints.Length;
-import org.hibernate.validator.constraints.UniqueElements;
-import ru.practicum.shareit.booking.model.Booking;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Pattern;
-import java.util.Set;
 
 /**
  * TODO Sprint add-controllers.
