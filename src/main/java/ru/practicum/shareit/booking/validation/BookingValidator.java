@@ -24,43 +24,33 @@ public class BookingValidator {
 
     public Item validateItem(CreateBookingDto createDto) {
 
-        Optional<Item> itemOpt = itemStorage.findById(createDto.getItemId());
+        Item item = itemStorage.findById(createDto.getItemId()).orElseThrow(
+                () -> new NotFoundException("No such item with ID: " + createDto.getItemId()));
 
-        if (itemOpt.isEmpty()) {
-            throw new NotFoundException("No such item with ID: " + createDto.getItemId());
+        if (!item.getAvailable()) {
+            throw new ValidationException("This item is unavailable to book");
         } else {
-            if (!itemOpt.get().getAvailable()) {
-                throw new ValidationException("This item is unavailable to book");
+            if (createDto.getEnd() == null ||
+                    createDto.getStart() == null ||
+                    createDto.getEnd().isBefore(LocalDateTime.now()) ||
+                    createDto.getEnd().isBefore(createDto.getStart()) ||
+                    createDto.getEnd().equals(createDto.getStart()) ||
+                    createDto.getStart().isBefore(LocalDateTime.now())) {
+                throw new ValidationException("Invalid field value end or start");
             } else {
-                if (createDto.getEnd() == null ||
-                        createDto.getStart() == null ||
-                        createDto.getEnd().isBefore(LocalDateTime.now()) ||
-                        createDto.getEnd().isBefore(createDto.getStart()) ||
-                        createDto.getEnd().equals(createDto.getStart()) ||
-                        createDto.getStart().isBefore(LocalDateTime.now())) {
-                    throw new ValidationException("Invalid field value end or start");
-                } else {
-                    return itemOpt.get();
-                }
+                return item;
             }
         }
+
     }
 
     public User validateBooker(Long bookerId) {
-        Optional<User> userOpt = userStorage.findById(bookerId);
-        if (userOpt.isEmpty()) {
-            throw new NotFoundException("No such user with ID: " + bookerId);
-        } else {
-            return userOpt.get();
-        }
+        return userStorage.findById(bookerId).orElseThrow(
+                () -> new NotFoundException("No such user with ID: " + bookerId));
     }
 
     public Booking validateBooking(Long bookingId) {
-        Optional<Booking> bookingOpt = bookingStorage.findById(bookingId);
-        if (bookingOpt.isEmpty()) {
-            throw new NotFoundException("No such booking with ID: " + bookingId);
-        } else {
-            return bookingOpt.get();
-        }
+        return bookingStorage.findById(bookingId).orElseThrow(
+                () -> new NotFoundException("No such booking with ID: " + bookingId));
     }
 }

@@ -24,7 +24,6 @@ import ru.practicum.shareit.user.storage.UserStorage;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -69,43 +68,31 @@ public class ItemServiceImpl implements ItemService {
     public ItemForOwnerDto getItemById(Long itemId, Long userId) {
         Item item = validator.validateItem(itemId);
 
-            ItemForOwnerDto resultItem = mapper.map(item, ItemForOwnerDto.class);
-            List<Booking> bookList = bookingStorage.findAllBookingByItemId(item.getId());
-            if (!bookList.isEmpty() && item.getOwnerId().equals(userId)) {
+        ItemForOwnerDto resultItem = mapper.map(item, ItemForOwnerDto.class);
+        List<Booking> bookList = bookingStorage.findByItemIdAndStatus(item.getId(), Status.APPROVED);
+        if (!bookList.isEmpty() && item.getOwnerId().equals(userId)) {
 
-                NextBookingDto next = mapper.map(
-                        bookList.stream()
-                                .filter(booking -> booking.getStart().isAfter(LocalDateTime.now()))
-                                .filter(booking -> booking.getStatus().equals(Status.APPROVED))
-                                .min(Comparator.comparing(Booking::getStart)),
-                        NextBookingDto.class);
+            NextBookingDto next = getNext(itemId);
+            LastBookingDto last = getLast(itemId);
 
-                LastBookingDto last = mapper.map(
-                        bookList.stream()
-                                .filter(booking -> booking.getStart().isBefore(LocalDateTime.now()))
-                                .filter(booking -> booking.getStatus().equals(Status.APPROVED))
-                                .max(Comparator.comparing(Booking::getEnd)),
-                        LastBookingDto.class);
-
-                if (last != null && next != null && last.getId().equals(next.getId())
-                        && last.getBookerId().equals(next.getBookerId())) {
-                    resultItem.setNextBooking(next);
-                } else {
-                    resultItem.setNextBooking(next);
-                    resultItem.setLastBooking(last);
-                }
-            }
-
-            List<Comment> commentsList = commentsStorage.findByItemContaining(resultItem.getId());
-            if (commentsList.isEmpty()) {
-                resultItem.setComments(Collections.emptyList());
+            if (last != null && last.equals(next)) {
+                resultItem.setNextBooking(next);
             } else {
-                List<RequestCommentDto> requestComments = commentsList.stream()
-                        .map(comment -> mapper.map(comment, RequestCommentDto.class))
-                        .collect(Collectors.toList());
-                resultItem.setComments(requestComments);
+                resultItem.setNextBooking(next);
+                resultItem.setLastBooking(last);
             }
-            return resultItem;
+        }
+
+        List<Comment> commentsList = commentsStorage.findByItemContaining(resultItem.getId());
+        if (commentsList.isEmpty()) {
+            resultItem.setComments(Collections.emptyList());
+        } else {
+            List<RequestCommentDto> requestComments = commentsList.stream()
+                    .map(comment -> mapper.map(comment, RequestCommentDto.class))
+                    .collect(Collectors.toList());
+            resultItem.setComments(requestComments);
+        }
+        return resultItem;
     }
 
     @Override
@@ -118,24 +105,14 @@ public class ItemServiceImpl implements ItemService {
         List<ItemForOwnerDto> resultList = new ArrayList<>();
 
         for (ItemForOwnerDto item : list) {
-            List<Booking> bookList = bookingStorage.findAllBookingByItemId(item.getId());
+            List<Booking> bookList = bookingStorage.findByItemId(item.getId());
             if (bookList.isEmpty()) {
                 return list;
             } else {
-                NextBookingDto next = mapper.map(
-                        bookList.stream()
-                                .filter(booking -> booking.getStart().isAfter(LocalDateTime.now()))
-                                .filter(booking -> booking.getStatus().equals(Status.APPROVED))
-                                .min(Comparator.comparing(Booking::getStart)),
-                        NextBookingDto.class);
-                LastBookingDto last = mapper.map(
-                        bookList.stream()
-                                .filter(booking -> booking.getEnd().isBefore(LocalDateTime.now()))
-                                .filter(booking -> booking.getStatus().equals(Status.APPROVED))
-                                .min(Comparator.comparing(Booking::getEnd)),
-                        LastBookingDto.class);
+                NextBookingDto next = getNext(item.getId());
+                LastBookingDto last = getLast(item.getId());
 
-                if (last.getId().equals(next.getId()) && last.getBookerId().equals(next.getBookerId())) {
+                if (last != null && last.equals(next)) {
                     item.setNextBooking(next);
                     resultList.add(item);
                 } else {
@@ -179,5 +156,35 @@ public class ItemServiceImpl implements ItemService {
         newComment.setCreated(LocalDateTime.now());
         newComment.setAuthor(userStorage.findById(userId).get());
         return mapper.map(commentsStorage.save(newComment), RequestCommentDto.class);
+    }
+
+    private NextBookingDto getNext(Long itemId) {
+        NextBookingDto next = null;
+        try {
+            next = mapper.map(
+                    bookingStorage.findFirstByItemIdAndStatusAndStartIsAfterOrderByStart(
+                            itemId,
+                            Status.APPROVED,
+                            LocalDateTime.now()),
+                    NextBookingDto.class
+            );
+        } catch (IllegalArgumentException ignored) {
+        }
+        return next;
+    }
+
+    private LastBookingDto getLast(Long itemId) {
+        LastBookingDto last = null;
+        try {
+            last = mapper.map(
+                    bookingStorage.findFirstByItemIdAndStatusAndStartIsBeforeOrderByEndDesc(
+                            itemId,
+                            Status.APPROVED,
+                            LocalDateTime.now()),
+                    LastBookingDto.class
+            );
+        } catch (IllegalArgumentException ignored) {
+        }
+        return last;
     }
 }

@@ -15,7 +15,7 @@ import java.time.LocalDateTime;
  */
 @Getter
 @Setter
-@EqualsAndHashCode
+@EqualsAndHashCode(exclude = {"id"})
 @Accessors(chain = true)
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @Entity
@@ -31,8 +31,8 @@ public class Booking {
     @Column(name = "status")
     @Enumerated(EnumType.STRING)
     Status status;
-    @OneToOne(fetch = FetchType.LAZY)
+    @OneToOne(fetch = FetchType.EAGER)
     User booker;
-    @OneToOne(fetch = FetchType.LAZY)
+    @OneToOne(fetch = FetchType.EAGER)
     Item item;
 }

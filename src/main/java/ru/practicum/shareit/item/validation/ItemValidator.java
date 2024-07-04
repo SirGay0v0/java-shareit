@@ -27,27 +27,20 @@ public class ItemValidator {
     private final BookingStorage bookingStorage;
 
     public void validateByExistingUser(Long ownerId) {
-        Optional<User> userOpt = userStorage.findById(ownerId);
-        if (userOpt.isEmpty()) {
-            throw new NotFoundException("No such user with ID: " + ownerId);
-        }
+        userStorage.findById(ownerId).orElseThrow(
+                () -> new NotFoundException("No such user with ID: " + ownerId)
+        );
     }
 
     public Item validateItem(Long itemId) {
-        Optional<Item> itemOpt = itemStorage.findById(itemId);
-        if (itemOpt.isEmpty()) {
-            throw new NotFoundException("No such item with ID: " + itemId);
-        }
-        return itemOpt.get();
+        return itemStorage.findById(itemId).orElseThrow(
+                () -> new NotFoundException("No such item with ID: " + itemId)
+        );
     }
 
     public void validateComment(CreateCommentDto comment, Long userId, Long itemId) {
-        List<Booking> bookList = bookingStorage.findAllBookingByItemId(itemId);
-        List<Booking> bookingListCurrentUser = bookList.stream()
-                .filter(booking -> booking.getBooker().getId().equals(userId))
-                .filter(booking -> booking.getStatus().equals(Status.APPROVED))
-                .filter(booking -> booking.getStart().isBefore(LocalDateTime.now()))
-                .collect(Collectors.toList());
+        List<Booking> bookList = bookingStorage.findByItemId(itemId);
+        List<Booking> bookingListCurrentUser = bookList.stream().filter(booking -> booking.getBooker().getId().equals(userId)).filter(booking -> booking.getStatus().equals(Status.APPROVED)).filter(booking -> booking.getStart().isBefore(LocalDateTime.now())).collect(Collectors.toList());
 
         if (bookingListCurrentUser.isEmpty()) {
             throw new ValidationException("This user didn't book this item anytime");

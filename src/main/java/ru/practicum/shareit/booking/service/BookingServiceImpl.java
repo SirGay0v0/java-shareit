@@ -100,48 +100,46 @@ public class BookingServiceImpl implements BookingService {
     public List<RequestBookingDto> getListUserBookingsByStatus(String state, Long bookerId) {
         validator.validateBooker(bookerId);
         List<Booking> resultList = storage.findByBookerId(bookerId);
-        return resultByState(state, resultList);
+        return resultListByState(state, resultList);
     }
 
     @Override
     public List<RequestBookingDto> getListOwnerBookingsByStatus(String state, Long ownerId) {
         validator.validateBooker(ownerId);
-        List<Booking> resultList = storage.findAllBookingsByItemOwnerId(ownerId);
-        return resultByState(state, resultList);
+        List<Booking> resultList = storage.findByItemOwnerId(ownerId);
+        return resultListByState(state, resultList);
     }
 
-    private List<RequestBookingDto> resultByState(String state, List<Booking> resultList) {
+    private List<RequestBookingDto> resultListByState(String state, List<Booking> userBookingsList) {
+        List<Booking> resultList;
         switch (state) {
             case "ALL": {
+                resultList = storage.findAll();
                 break;
             }
             case "CURRENT": {
-                resultList = resultList.stream()
+                resultList = userBookingsList.stream()
                         .filter(booking -> booking.getStart().isBefore(LocalDateTime.now()) &&
                                 booking.getEnd().isAfter(LocalDateTime.now()))
                         .collect(Collectors.toList());
                 break;
             }
             case "PAST": {
-                resultList = resultList.stream()
-                        .filter(booking -> booking.getEnd().isBefore(LocalDateTime.now()))
-                        .collect(Collectors.toList());
+                resultList = storage.findAllByEndIsBefore(LocalDateTime.now());
                 break;
             }
             case "FUTURE": {
-                resultList = resultList.stream()
-                        .filter(booking -> booking.getStart().isAfter(LocalDateTime.now()))
-                        .collect(Collectors.toList());
+                resultList = storage.findAllByStartIsAfter(LocalDateTime.now());
                 break;
             }
             case "WAITING": {
-                resultList = resultList.stream()
+                resultList = userBookingsList.stream()
                         .filter(booking -> booking.getStatus().equals(Status.WAITING))
                         .collect(Collectors.toList());
                 break;
             }
             case "REJECTED": {
-                resultList = resultList.stream()
+                resultList = userBookingsList.stream()
                         .filter(booking -> booking.getStatus().equals(Status.REJECTED))
                         .collect(Collectors.toList());
                 break;

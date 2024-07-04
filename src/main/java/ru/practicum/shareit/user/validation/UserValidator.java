@@ -23,11 +23,8 @@ public class UserValidator {
     }
 
     public User validateById(Long userId) {
-        Optional<User> userOpt = storage.findById(userId);
-        if (userOpt.isEmpty()) {
-            throw new NotFoundException("No such User with id " + userId);
-        } else {
-            return userOpt.get();
-        }
+        return storage.findById(userId).orElseThrow(
+                () -> new NotFoundException("No such User with id " + userId)
+        );
     }
 }

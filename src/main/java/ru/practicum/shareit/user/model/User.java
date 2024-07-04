@@ -17,7 +17,7 @@ import javax.validation.constraints.Pattern;
 
 @Getter
 @Setter
-@EqualsAndHashCode
+@EqualsAndHashCode(exclude = {"id"})
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @Accessors(chain = true)
 @Entity
