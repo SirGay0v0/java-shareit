@@ -75,7 +75,8 @@ public class ItemServiceImpl implements ItemService {
             NextBookingDto next = getNext(itemId);
             LastBookingDto last = getLast(itemId);
 
-            if (last != null && last.equals(next)) {
+            if (last != null && next != null &&
+                    last.getId().equals(next.getId()) && last.getBookerId().equals(next.getBookerId())) {
                 resultItem.setNextBooking(next);
             } else {
                 resultItem.setNextBooking(next);
@@ -112,7 +113,8 @@ public class ItemServiceImpl implements ItemService {
                 NextBookingDto next = getNext(item.getId());
                 LastBookingDto last = getLast(item.getId());
 
-                if (last != null && last.equals(next)) {
+                if (last != null && next != null &&
+                        last.getId().equals(next.getId()) && last.getBookerId().equals(next.getBookerId())) {
                     item.setNextBooking(next);
                     resultList.add(item);
                 } else {
