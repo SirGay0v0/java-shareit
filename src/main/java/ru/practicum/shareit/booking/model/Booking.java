@@ -15,7 +15,7 @@ import java.time.LocalDateTime;
  */
 @Getter
 @Setter
-@EqualsAndHashCode(exclude = {"id"})
+@EqualsAndHashCode(exclude = {"start", "end", "status", "booker", "item"})
 @Accessors(chain = true)
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @Entity
