@@ -2,32 +2,49 @@ package ru.practicum.shareit.item.validation;
 
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Component;
+import ru.practicum.shareit.booking.model.Booking;
+import ru.practicum.shareit.booking.model.Status;
+import ru.practicum.shareit.booking.storage.BookingStorage;
 import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.exception.ValidationException;
-import ru.practicum.shareit.item.dto.ItemRequestDto;
+import ru.practicum.shareit.item.comments.dto.CreateCommentDto;
+import ru.practicum.shareit.item.model.Item;
+import ru.practicum.shareit.item.storage.ItemStorage;
 import ru.practicum.shareit.user.storage.UserStorage;
+
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Component
 @AllArgsConstructor
 public class ItemValidator {
 
     private final UserStorage userStorage;
+    private final ItemStorage itemStorage;
+    private final BookingStorage bookingStorage;
 
-    public void createValidate(ItemRequestDto item, long ownerId) {
-        if (userStorage.getById(ownerId) == null) {
-            throw new NotFoundException("No such user with ID: " + ownerId);
+    public void validateByExistingUser(Long ownerId) {
+        userStorage.findById(ownerId).orElseThrow(
+                () -> new NotFoundException("No such user with ID: " + ownerId)
+        );
+    }
+
+    public Item validateItem(Long itemId) {
+        return itemStorage.findById(itemId).orElseThrow(
+                () -> new NotFoundException("No such item with ID: " + itemId)
+        );
+    }
+
+    public void validateComment(CreateCommentDto comment, Long userId, Long itemId) {
+        List<Booking> bookList = bookingStorage.findByItemId(itemId);
+        List<Booking> bookingListCurrentUser = bookList.stream().filter(booking -> booking.getBooker().getId().equals(userId)).filter(booking -> booking.getStatus().equals(Status.APPROVED)).filter(booking -> booking.getStart().isBefore(LocalDateTime.now())).collect(Collectors.toList());
+
+        if (bookingListCurrentUser.isEmpty()) {
+            throw new ValidationException("This user didn't book this item anytime");
         }
-
-        if (item.getAvailable() == null) {
-            throw new ValidationException("Invalid field value \"vailable\"");
-        }
-
-        if (item.getName() == null || item.getName().isBlank()) {
-            throw new ValidationException("Invalid field value \"name\"");
-        }
-
-        if (item.getDescription() == null || item.getDescription().isBlank()) {
-            throw new ValidationException("Invalid field value \"description\"");
+        if (comment.getText().isBlank()) {
+            throw new ValidationException("The comment must contains some text");
         }
     }
 }

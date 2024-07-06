@@ -1,13 +1,18 @@
 package ru.practicum.shareit.item.dto;
 
-import lombok.AccessLevel;
-import lombok.Data;
-import lombok.experimental.FieldDefaults;
+import lombok.Getter;
+import lombok.Setter;
 
-@Data
-@FieldDefaults(level = AccessLevel.PRIVATE)
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
+
+@Getter
+@Setter
 public class ItemRequestDto {
-    String name;
-    String description;
-    Boolean available;
+    @NotBlank
+    private String name;
+    @NotBlank
+    private String description;
+    @NotNull
+    private Boolean available;
 }
