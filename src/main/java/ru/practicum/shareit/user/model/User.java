@@ -17,12 +17,13 @@ import javax.validation.constraints.Pattern;
 
 @Getter
 @Setter
-@EqualsAndHashCode(exclude = {"name", "email"})
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @Accessors(chain = true)
 @Entity
 @Table(name = "users")
 public class User {
+    @EqualsAndHashCode.Include
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     Long id;

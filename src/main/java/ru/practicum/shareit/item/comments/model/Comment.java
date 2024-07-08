@@ -11,12 +11,13 @@ import java.time.LocalDateTime;
 
 @Getter
 @Setter
-@EqualsAndHashCode(exclude = {"text", "author", "item", "created"})
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @Accessors(chain = true)
 @Entity
 @Table(name = "comments")
 public class Comment {
+    @EqualsAndHashCode.Include
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     Long id;

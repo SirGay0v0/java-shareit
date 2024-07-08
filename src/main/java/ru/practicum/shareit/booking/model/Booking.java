@@ -15,12 +15,13 @@ import java.time.LocalDateTime;
  */
 @Getter
 @Setter
-@EqualsAndHashCode(exclude = {"start", "end", "status", "booker", "item"})
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @Accessors(chain = true)
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @Entity
 @Table(name = "booking")
 public class Booking {
+    @EqualsAndHashCode.Include
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     Long id;
