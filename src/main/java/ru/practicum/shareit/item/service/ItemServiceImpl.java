@@ -2,6 +2,8 @@ package ru.practicum.shareit.item.service;
 
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import ru.practicum.shareit.booking.model.Booking;
@@ -41,6 +43,7 @@ public class ItemServiceImpl implements ItemService {
     public Item addNewItem(Long ownerId, ItemRequestDto itemRequestDto) {
         validator.validateByExistingUser(ownerId);
         Item item = mapper.map(itemRequestDto, Item.class);
+        item.setId(null);
         item.setOwnerId(ownerId);
         return storage.save(item);
     }
@@ -84,7 +87,7 @@ public class ItemServiceImpl implements ItemService {
             }
         }
 
-        List<Comment> commentsList = commentsStorage.findByItemContaining(resultItem.getId());
+        List<Comment> commentsList = commentsStorage.findByItemId(resultItem.getId());
         if (commentsList.isEmpty()) {
             resultItem.setComments(Collections.emptyList());
         } else {
@@ -97,9 +100,9 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
-    public List<ItemForOwnerDto> getAllById(Long userId) {
+    public List<ItemForOwnerDto> getAllById(PageRequest pageRequest, Long userId) {
 
-        List<ItemForOwnerDto> list = storage.findByOwnerId(userId).stream()
+        List<ItemForOwnerDto> list = storage.findByOwnerId(pageRequest, userId).stream()
                 .map(item -> mapper.map(item, ItemForOwnerDto.class))
                 .collect(Collectors.toList());
 
@@ -123,7 +126,7 @@ public class ItemServiceImpl implements ItemService {
                 }
             }
 
-            List<Comment> commentsList = commentsStorage.findByItemContaining(item.getId());
+            List<Comment> commentsList = commentsStorage.findByItemId(item.getId());
             List<RequestCommentDto> requestComments = commentsList.stream()
                     .map(comment -> mapper.map(comment, RequestCommentDto.class))
                     .collect(Collectors.toList());
@@ -138,15 +141,15 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
-    public List<Item> searchItems(String request) {
+    public List<Item> searchItems(PageRequest pageRequest, String request) {
+        Page<Item> page = storage.findByNameContainsIgnoringCaseOrDescriptionContainsIgnoringCaseAndAvailableIsTrue(
+                request,
+                request,
+                pageRequest);
         if (!StringUtils.hasText(request)) {
             return Collections.emptyList();
         } else {
-            return storage.findByNameContainsIgnoringCaseOrDescriptionContainsIgnoringCase(
-                            request, request)
-                    .stream()
-                    .filter(Item::getAvailable)
-                    .collect(Collectors.toList());
+            return page.getContent();
         }
     }
 

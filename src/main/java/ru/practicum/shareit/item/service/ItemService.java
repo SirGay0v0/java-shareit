@@ -1,5 +1,6 @@
 package ru.practicum.shareit.item.service;
 
+import org.springframework.data.domain.PageRequest;
 import ru.practicum.shareit.exception.AccessDeniedException;
 import ru.practicum.shareit.item.comments.dto.CreateCommentDto;
 import ru.practicum.shareit.item.comments.dto.RequestCommentDto;
@@ -16,9 +17,9 @@ public interface ItemService {
 
     ItemForOwnerDto getItemById(Long itemId, Long userId);
 
-    List<ItemForOwnerDto> getAllById(Long ownerId);
+    List<ItemForOwnerDto> getAllById(PageRequest pageRequest, Long userId);
 
-    List<Item> searchItems(String request);
+    List<Item> searchItems(PageRequest pageRequest, String request);
 
     RequestCommentDto addComment(CreateCommentDto comment, Long userId, Long itemId);
 }

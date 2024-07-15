@@ -2,6 +2,8 @@ package ru.practicum.shareit.booking.service;
 
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.booking.dto.CreateBookingDto;
 import ru.practicum.shareit.booking.dto.ItemBookingDto;
@@ -97,24 +99,24 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Override
-    public List<RequestBookingDto> getListUserBookingsByStatus(String state, Long bookerId) {
-        validator.validateBooker(bookerId);
-        List<Booking> resultList = storage.findByBookerId(bookerId);
-        return resultListByState(state, resultList);
+    public List<RequestBookingDto> getListUserBookingsByStatus(String state, Long bookerId, int from, int size) {
+        validator.validatePage(from, size, bookerId);
+        Page<Booking> page = storage.findByBookerIdOrderByStartDesc(bookerId, PageRequest.of(from / size, size));
+        return resultListByState(state, page.getContent());
     }
 
     @Override
-    public List<RequestBookingDto> getListOwnerBookingsByStatus(String state, Long ownerId) {
-        validator.validateBooker(ownerId);
-        List<Booking> resultList = storage.findByItemOwnerId(ownerId);
-        return resultListByState(state, resultList);
+    public List<RequestBookingDto> getListOwnerBookingsByStatus(String state, Long ownerId, int from, int size) {
+        validator.validatePage(from, size, ownerId);
+        Page<Booking> page = storage.findByItemOwnerIdOrderByStartDesc(ownerId, PageRequest.of(from / size, size));
+        return resultListByState(state, page.getContent());
     }
 
-    private List<RequestBookingDto> resultListByState(String state, List<Booking> userBookingsList) {
+    public List<RequestBookingDto> resultListByState(String state, List<Booking> userBookingsList) {
         List<Booking> resultList;
         switch (state) {
             case "ALL": {
-                resultList = storage.findAll();
+                resultList = userBookingsList;
                 break;
             }
             case "CURRENT": {

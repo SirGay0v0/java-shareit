@@ -1,42 +1,37 @@
 package ru.practicum.shareit.user.service;
 
 import lombok.RequiredArgsConstructor;
-import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
-import ru.practicum.shareit.user.dto.UserRequestDto;
 import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.storage.UserStorage;
 import ru.practicum.shareit.user.validation.UserValidator;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
+
     private final UserStorage storage;
     private final UserValidator validator;
-    private final ModelMapper mapper;
 
     @Override
-    public UserRequestDto create(User user) {
-        return mapper.map(
-                storage.save(user),
-                UserRequestDto.class);
+    public User create(User user) {
+        //validator.validateByEmail(user);
+        return storage.save(user);
     }
 
     @Override
-    public UserRequestDto update(Long userId, User newUser) {
+    public User update(Long userId, User newUser) {
         User oldUser = validator.validateById(userId);
         if (newUser.getName() != null) {
             oldUser.setName(newUser.getName());
         }
         if (newUser.getEmail() != null && !newUser.getEmail().equals(oldUser.getEmail())) {
-            oldUser.setEmail(validator.validateByEmail(newUser));
+            validator.validateByEmail(newUser);
+            oldUser.setEmail(newUser.getEmail());
         }
-        return mapper.map(
-                storage.save(oldUser),
-                UserRequestDto.class);
+        return storage.save(oldUser);
     }
 
     @Override
@@ -45,15 +40,13 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public UserRequestDto getById(Long userId) {
-        User user = validator.validateById(userId);
-        return mapper.map(user, UserRequestDto.class);
+    public User getById(Long userId) {
+        validator.validateById(userId);
+        return storage.getReferenceById(userId);
     }
 
     @Override
-    public List<UserRequestDto> getAll() {
-        return storage.findAll().stream()
-                .map(user -> mapper.map(user, UserRequestDto.class))
-                .collect(Collectors.toList());
+    public List<User> getAll() {
+        return storage.findAll();
     }
 }

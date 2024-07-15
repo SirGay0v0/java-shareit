@@ -1,6 +1,6 @@
 package ru.practicum.shareit.item.validation;
 
-import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.model.Status;
@@ -17,7 +17,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Component
-@AllArgsConstructor
+@RequiredArgsConstructor
 public class ItemValidator {
 
     private final UserStorage userStorage;

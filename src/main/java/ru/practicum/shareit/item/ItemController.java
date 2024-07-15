@@ -1,6 +1,7 @@
 package ru.practicum.shareit.item;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.exception.AccessDeniedException;
 import ru.practicum.shareit.item.comments.dto.CreateCommentDto;
@@ -45,19 +46,23 @@ public class ItemController {
 
 
     @GetMapping
-    public List<ItemForOwnerDto> getAllById(@RequestHeader("X-Sharer-User-Id") Long userId) {
-        return service.getAllById(userId);
+    public List<ItemForOwnerDto> getAllById(@RequestHeader("X-Sharer-User-Id") Long userId,
+                                            @RequestParam(required = false, defaultValue = "0") int from,
+                                            @RequestParam(required = false, defaultValue = "10") int size) {
+        return service.getAllById(PageRequest.of(from, size), userId);
     }
 
     @GetMapping("/search")
-    public List<Item> searchItems(@RequestParam String text) {
-        return service.searchItems(text);
+    public List<Item> searchItems(@RequestParam String text,
+                                  @RequestParam(required = false, defaultValue = "0") int from,
+                                  @RequestParam(required = false, defaultValue = "10") int size) {
+        return service.searchItems(PageRequest.of(from, size), text);
     }
 
     @PostMapping("/{itemId}/comment")
     public RequestCommentDto addComment(@RequestBody CreateCommentDto comment,
                                         @RequestHeader("X-Sharer-User-Id") Long userId,
                                         @PathVariable Long itemId) {
-       return service.addComment(comment, userId, itemId);
+        return service.addComment(comment, userId, itemId);
     }
 }

@@ -9,6 +9,7 @@ import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.exception.ValidationException;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.storage.ItemStorage;
+import ru.practicum.shareit.requests.storage.RequestStorage;
 import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.storage.UserStorage;
 
@@ -20,6 +21,7 @@ public class BookingValidator {
     private final UserStorage userStorage;
     private final ItemStorage itemStorage;
     private final BookingStorage bookingStorage;
+    private final RequestStorage requestStorage;
 
     public Item validateItem(CreateBookingDto createDto) {
 
@@ -51,5 +53,12 @@ public class BookingValidator {
     public Booking validateBooking(Long bookingId) {
         return bookingStorage.findById(bookingId).orElseThrow(
                 () -> new NotFoundException("No such booking with ID: " + bookingId));
+    }
+
+    public void validatePage(int from, int size, Long bookerId) {
+        validateBooker(bookerId);
+        if (from < 0 || size < 1) {
+            throw new ValidationException("Params from or size has wrong value!");
+        }
     }
 }
