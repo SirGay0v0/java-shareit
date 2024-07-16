@@ -137,6 +137,7 @@ public class ItemServiceImplTest {
 
         pageRequest = PageRequest.of(0, 10);
     }
+
     @DirtiesContext(methodMode = DirtiesContext.MethodMode.AFTER_METHOD)
     @Test
     void addNewItem_shouldAddNewItem_whenValidInput() {
@@ -153,6 +154,7 @@ public class ItemServiceImplTest {
                 eq(Item.class));
         verify(itemStorage, times(1)).save(any(Item.class));
     }
+
     @DirtiesContext(methodMode = DirtiesContext.MethodMode.AFTER_METHOD)
     @Test
     void updateItem_shouldUpdateItem_whenValidInput() throws AccessDeniedException {
@@ -166,6 +168,7 @@ public class ItemServiceImplTest {
         verify(validator, times(1)).validateItem(anyLong());
         verify(itemStorage, times(1)).save(any(Item.class));
     }
+
     @DirtiesContext(methodMode = DirtiesContext.MethodMode.AFTER_METHOD)
     @Test
     void updateItem_shouldThrowAccessDeniedException_whenUserIsNotOwner() {
@@ -176,6 +179,7 @@ public class ItemServiceImplTest {
         verify(validator, times(1)).validateItem(anyLong());
         verify(itemStorage, never()).save(any(Item.class));
     }
+
     @DirtiesContext(methodMode = DirtiesContext.MethodMode.AFTER_METHOD)
     @Test
     void getItemById_shouldReturnItemForOwnerDto_whenValidInput() {
@@ -205,6 +209,7 @@ public class ItemServiceImplTest {
         verify(mapper, times(1)).map(any(Comment.class),
                 eq(RequestCommentDto.class));
     }
+
     @DirtiesContext(methodMode = DirtiesContext.MethodMode.AFTER_METHOD)
     @Test
     void getAllById_shouldReturnItemsForOwner_whenValidInput() {
@@ -236,6 +241,7 @@ public class ItemServiceImplTest {
         verify(mapper, times(1)).map(any(Comment.class),
                 eq(RequestCommentDto.class));
     }
+
     @DirtiesContext(methodMode = DirtiesContext.MethodMode.AFTER_METHOD)
     @Test
     void searchItems_shouldReturnItems_whenRequestIsNotBlank() {
@@ -252,6 +258,7 @@ public class ItemServiceImplTest {
                 .findByNameContainsIgnoringCaseOrDescriptionContainsIgnoringCaseAndAvailableIsTrue(anyString(),
                         anyString(), any(PageRequest.class));
     }
+
     @DirtiesContext(methodMode = DirtiesContext.MethodMode.AFTER_METHOD)
     @Test
     void addComment_shouldAddComment_whenValidInput() {

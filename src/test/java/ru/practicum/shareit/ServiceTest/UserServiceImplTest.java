@@ -65,21 +65,6 @@ public class UserServiceImplTest {
         assertSame(result, user);
     }
 
-//    @DirtiesContext(methodMode = DirtiesContext.MethodMode.AFTER_METHOD)
-//    @Test
-//    void createUser_shouldThrowException_whenInvalidInput() {
-//        doThrow(new InternalServerException("User with email: " + user.getEmail() + " already exist"))
-//                .when(validator).validateByEmail(any(User.class));
-//
-//        InternalServerException exception = assertThrows(
-//                InternalServerException.class,
-//                () -> service.create(user));
-//        assertEquals("User with email: " + user.getEmail() + " already exist", exception.getMessage());
-//
-//        verify(validator, times(1)).validateByEmail(any(User.class));
-//        verify(storage, never()).save(any(User.class));
-//    }
-
     @DirtiesContext(methodMode = DirtiesContext.MethodMode.AFTER_METHOD)
     @Test
     void updateUser_shouldUpdate_whenValidInputName() {

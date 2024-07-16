@@ -108,6 +108,7 @@ public class RequestServiceImplTest {
         requestId = 1L;
         pageRequest = PageRequest.of(0, 10);
     }
+
     @DirtiesContext(methodMode = DirtiesContext.MethodMode.AFTER_METHOD)
     @Test
     void createRequest_shouldReturnRequest_whenValidInput() {
@@ -121,6 +122,7 @@ public class RequestServiceImplTest {
 
         verify(storage, times(1)).save(any(Request.class));
     }
+
     @DirtiesContext(methodMode = DirtiesContext.MethodMode.AFTER_METHOD)
     @Test
     void createRequest_shouldThrowNotFoundException_whenUserNotExist() {
@@ -136,6 +138,7 @@ public class RequestServiceImplTest {
                 any(CreateRequestDto.class));
         verify(storage, never()).save(any(Request.class));
     }
+
     @DirtiesContext(methodMode = DirtiesContext.MethodMode.AFTER_METHOD)
     @Test
     public void create_shouldThrowValidationException_whenDescriptionIsNull() {
@@ -153,6 +156,7 @@ public class RequestServiceImplTest {
                 any(CreateRequestDto.class));
         verify(storage, never()).save(any(Request.class));
     }
+
     @DirtiesContext(methodMode = DirtiesContext.MethodMode.AFTER_METHOD)
     @Test
     void createRequest_shouldThrowValidationException_whenDescriptionIsBlank() {
@@ -170,6 +174,7 @@ public class RequestServiceImplTest {
                 any(CreateRequestDto.class));
         verify(storage, never()).save(any(Request.class));
     }
+
     @DirtiesContext(methodMode = DirtiesContext.MethodMode.AFTER_METHOD)
     @Test
     public void getAllById_shouldReturnRequests_whenUserExists() {
@@ -199,6 +204,7 @@ public class RequestServiceImplTest {
         verify(mapper, times(1)).map(any(),
                 eq(ResponseDto.class));
     }
+
     @DirtiesContext(methodMode = DirtiesContext.MethodMode.AFTER_METHOD)
     @Test
     public void getAllById_shouldThrowNotFoundException_whenUserDoesNotExist() {
@@ -215,6 +221,7 @@ public class RequestServiceImplTest {
         verify(mapper, never()).map(any(Request.class), eq(RequestForUserDto.class));
         verify(mapper, never()).map(any(), eq(ResponseDto.class));
     }
+
     @DirtiesContext(methodMode = DirtiesContext.MethodMode.AFTER_METHOD)
     @Test
     public void getAllFromOtherUsers_shouldThrowValidationException_whenInvalidPageRequest() {
@@ -234,6 +241,7 @@ public class RequestServiceImplTest {
                 eq(RequestForUserDto.class));
         verify(mapper, never()).map(any(), eq(ResponseDto.class));
     }
+
     @DirtiesContext(methodMode = DirtiesContext.MethodMode.AFTER_METHOD)
     @Test
     public void getRequestById_shouldReturnRequest_whenValidInput() {
@@ -262,6 +270,7 @@ public class RequestServiceImplTest {
                 eq(RequestForUserDto.class));
         verify(mapper, times(1)).map(any(), eq(ResponseDto.class));
     }
+
     @DirtiesContext(methodMode = DirtiesContext.MethodMode.AFTER_METHOD)
     @Test
     public void getRequestById_shouldThrowNotFoundException_whenInvalidRequestId() {

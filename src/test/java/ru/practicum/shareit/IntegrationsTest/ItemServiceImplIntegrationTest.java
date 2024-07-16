@@ -28,6 +28,7 @@ public class ItemServiceImplIntegrationTest {
 
     private final ItemService itemService;
     private final UserService userService;
+
     @DirtiesContext(methodMode = DirtiesContext.MethodMode.AFTER_METHOD)
     @Test
     public void testGetItemById() {

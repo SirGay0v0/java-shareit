@@ -97,6 +97,7 @@ public class BookingServiceImplTest {
                 .setItem(null)
                 .setBooker(null);
     }
+
     @DirtiesContext(methodMode = DirtiesContext.MethodMode.AFTER_METHOD)
     @Test
     void createBooking_shouldCreateBooking_whenValidInput() {
@@ -150,6 +151,7 @@ public class BookingServiceImplTest {
         NotFoundException exception = assertThrows(NotFoundException.class, () -> service.createBooking(createBookingDto, 1L));
         assertEquals("Owner can't book his own items", exception.getMessage());
     }
+
     @DirtiesContext(methodMode = DirtiesContext.MethodMode.AFTER_METHOD)
     @Test
     public void testConfirmBooking() {
@@ -163,6 +165,7 @@ public class BookingServiceImplTest {
         assertEquals(Status.APPROVED, booking.getStatus());
         verify(storage, times(1)).save(any(Booking.class));
     }
+
     @DirtiesContext(methodMode = DirtiesContext.MethodMode.AFTER_METHOD)
     @Test
     public void testConfirmBookingNotOwner() {
@@ -171,6 +174,7 @@ public class BookingServiceImplTest {
         NotFoundException exception = assertThrows(NotFoundException.class, () -> service.confirm(1L, true, 2L));
         assertEquals("Only owner of item can change status", exception.getMessage());
     }
+
     @DirtiesContext(methodMode = DirtiesContext.MethodMode.AFTER_METHOD)
     @Test
     public void testConfirmBookingAlreadyApproved() {
@@ -180,6 +184,7 @@ public class BookingServiceImplTest {
         ValidationException exception = assertThrows(ValidationException.class, () -> service.confirm(1L, true, 1L));
         assertEquals("Booking already approved", exception.getMessage());
     }
+
     @DirtiesContext(methodMode = DirtiesContext.MethodMode.AFTER_METHOD)
     @Test
     public void testGetBookingById() {
@@ -193,6 +198,7 @@ public class BookingServiceImplTest {
         verify(validator, times(1)).validateBooker(anyLong());
         verify(validator, times(1)).validateBooking(anyLong());
     }
+
     @DirtiesContext(methodMode = DirtiesContext.MethodMode.AFTER_METHOD)
     @Test
     public void testGetBookingByIdNotAccessible() {
@@ -202,6 +208,7 @@ public class BookingServiceImplTest {
         NotFoundException exception = assertThrows(NotFoundException.class, () -> service.getBookingById(1L, 2L));
         assertEquals("User with id 2haven't access to this booking", exception.getMessage());
     }
+
     @DirtiesContext(methodMode = DirtiesContext.MethodMode.AFTER_METHOD)
     @Test
     public void testGetListUserBookingsByStatus() {
@@ -215,6 +222,7 @@ public class BookingServiceImplTest {
         assertEquals(1, result.size());
         verify(storage, times(1)).findByBookerIdOrderByStartDesc(anyLong(), any(PageRequest.class));
     }
+
     @DirtiesContext(methodMode = DirtiesContext.MethodMode.AFTER_METHOD)
     @Test
     public void testGetListOwnerBookingsByStatus() {
@@ -228,6 +236,7 @@ public class BookingServiceImplTest {
         assertEquals(1, result.size());
         verify(storage, times(1)).findByItemOwnerIdOrderByStartDesc(anyLong(), any(PageRequest.class));
     }
+
     @DirtiesContext(methodMode = DirtiesContext.MethodMode.AFTER_METHOD)
     @Test
     public void testResultListByStateAll() {
@@ -239,6 +248,7 @@ public class BookingServiceImplTest {
         assertNotNull(result);
         assertEquals(1, result.size());
     }
+
     @DirtiesContext(methodMode = DirtiesContext.MethodMode.AFTER_METHOD)
     @Test
     public void testResultListByStateCurrent() {
@@ -252,6 +262,7 @@ public class BookingServiceImplTest {
         assertNotNull(result);
         assertEquals(1, result.size());
     }
+
     @DirtiesContext(methodMode = DirtiesContext.MethodMode.AFTER_METHOD)
     @Test
     public void testResultListByStatePast() {
@@ -265,6 +276,7 @@ public class BookingServiceImplTest {
         assertNotNull(result);
         assertEquals(1, result.size());
     }
+
     @DirtiesContext(methodMode = DirtiesContext.MethodMode.AFTER_METHOD)
     @Test
     public void testResultListByStateFuture() {
@@ -278,6 +290,7 @@ public class BookingServiceImplTest {
         assertNotNull(result);
         assertEquals(1, result.size());
     }
+
     @DirtiesContext(methodMode = DirtiesContext.MethodMode.AFTER_METHOD)
     @Test
     public void testResultListByStateWaiting() {
@@ -293,6 +306,7 @@ public class BookingServiceImplTest {
         assertNotNull(result);
         assertEquals(1, result.size());
     }
+
     @DirtiesContext(methodMode = DirtiesContext.MethodMode.AFTER_METHOD)
     @Test
     public void testResultListByStateRejected() {
@@ -308,6 +322,7 @@ public class BookingServiceImplTest {
         assertNotNull(result);
         assertEquals(1, result.size());
     }
+
     @DirtiesContext(methodMode = DirtiesContext.MethodMode.AFTER_METHOD)
     @Test
     public void testResultListByStateUnknown() {
