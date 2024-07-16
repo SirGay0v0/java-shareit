@@ -12,17 +12,7 @@ import ru.practicum.shareit.user.storage.UserStorage;
 public class UserValidator {
     private final UserStorage storage;
 
-//    public String validateByEmail(User user) {
-////        if (storage.findByEmail(user.getEmail()).isPresent()) {
-////            throw new InternalServerException("User with email: " + user.getEmail() + " already exist");
-////        } else {
-////            return user.getEmail();
-////        }
-//        return user.getEmail();
-//    }
-
     public void validateByEmail(User user) {
-
         if (storage.findByEmail(user.getEmail()).isPresent()) {
             throw new InternalServerException("User with email: " + user.getEmail() + " already exist");
         }
@@ -33,10 +23,4 @@ public class UserValidator {
                 () -> new NotFoundException("No such User with id " + userId)
         );
     }
-
-//    public User validateById(Long userId) {
-//        return storage.findById(userId).orElseThrow(
-//                () -> new NotFoundException("No such User with id " + userId)
-//        );
-//    }
 }
