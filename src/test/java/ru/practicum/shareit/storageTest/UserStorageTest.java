@@ -1,4 +1,4 @@
-package ru.practicum.shareit.StorageTest;
+package ru.practicum.shareit.storageTest;
 
 import lombok.RequiredArgsConstructor;
 import org.junit.jupiter.api.Test;

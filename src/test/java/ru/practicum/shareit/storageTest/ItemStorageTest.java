@@ -1,4 +1,4 @@
-package ru.practicum.shareit.StorageTest;
+package ru.practicum.shareit.storageTest;
 
 import lombok.RequiredArgsConstructor;
 import org.junit.jupiter.api.Test;
@@ -45,7 +45,9 @@ public class ItemStorageTest {
         itemStorage.save(item);
 
         PageRequest pageRequest = PageRequest.of(0, 10);
-        List<Item> foundItems = itemStorage.findByNameContainsIgnoringCaseOrDescriptionContainsIgnoringCaseAndAvailableIsTrue("test", "test", pageRequest).getContent();
+        List<Item> foundItems = itemStorage
+                .findByNameContainsIgnoringCaseOrDescriptionContainsIgnoringCaseAndAvailableIsTrue(
+                        "test", "test", pageRequest).getContent();
 
         assertThat(foundItems).isNotEmpty();
         assertThat(foundItems).contains(item);

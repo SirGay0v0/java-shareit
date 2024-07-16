@@ -1,4 +1,4 @@
-package ru.practicum.shareit.StorageTest;
+package ru.practicum.shareit.storageTest;
 
 import lombok.RequiredArgsConstructor;
 import org.junit.jupiter.api.Test;
@@ -71,7 +71,8 @@ public class RequestStorageTest {
         requestStorage.save(request2);
 
         PageRequest pageRequest = PageRequest.of(0, 10);
-        List<Request> foundRequests = requestStorage.findAllByAuthorNotInOrderByCreatedDesc(List.of(author1.getId()), pageRequest).getContent();
+        List<Request> foundRequests = requestStorage
+                .findAllByAuthorNotInOrderByCreatedDesc(List.of(author1.getId()), pageRequest).getContent();
 
         assertThat(foundRequests).isNotEmpty();
         assertThat(foundRequests).contains(request2);

@@ -1,4 +1,4 @@
-package ru.practicum.shareit.StorageTest;
+package ru.practicum.shareit.storageTest;
 
 import lombok.RequiredArgsConstructor;
 import org.junit.jupiter.api.Test;
@@ -54,7 +54,8 @@ public class BookingStorageTest {
                 .setStatus(Status.WAITING);
         bookingStorage.save(booking);
 
-        Page<Booking> bookings = bookingStorage.findByBookerIdOrderByStartDesc(user.getId(), PageRequest.of(0, 10));
+        Page<Booking> bookings = bookingStorage.findByBookerIdOrderByStartDesc(
+                user.getId(), PageRequest.of(0, 10));
 
         assertThat(bookings.getContent()).isNotEmpty();
         assertThat(bookings.getContent()).contains(booking);
@@ -82,7 +83,8 @@ public class BookingStorageTest {
                 .setStatus(Status.WAITING);
         bookingStorage.save(booking);
 
-        Page<Booking> bookings = bookingStorage.findByItemOwnerIdOrderByStartDesc(user.getId(), PageRequest.of(0, 10));
+        Page<Booking> bookings = bookingStorage.findByItemOwnerIdOrderByStartDesc(
+                user.getId(), PageRequest.of(0, 10));
 
         assertThat(bookings.getContent()).isNotEmpty();
         assertThat(bookings.getContent()).contains(booking);
