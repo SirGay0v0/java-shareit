@@ -18,7 +18,8 @@ import ru.practicum.shareit.user.storage.UserStorage;
 import javax.transaction.Transactional;
 import java.time.LocalDateTime;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 @ActiveProfiles("test")
 @Transactional
