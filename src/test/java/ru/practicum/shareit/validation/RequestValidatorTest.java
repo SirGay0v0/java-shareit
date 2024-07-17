@@ -101,7 +101,7 @@ public class RequestValidatorTest {
     public void testValidatePage_Success() {
         when(userStorage.findById(anyLong())).thenReturn(Optional.of(user));
 
-        requestValidator.validatePage(user.getId(), PageRequest.of(0, 10));
+        requestValidator.createPageAndValidateUser(0,10, user.getId());
     }
 
     @Test

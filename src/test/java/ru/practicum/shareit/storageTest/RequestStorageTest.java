@@ -72,7 +72,7 @@ public class RequestStorageTest {
 
         PageRequest pageRequest = PageRequest.of(0, 10);
         List<Request> foundRequests = requestStorage
-                .findAllByAuthorNotInOrderByCreatedDesc(List.of(author1.getId()), pageRequest).getContent();
+                .findAllByAuthorNotIn(List.of(author1.getId()), pageRequest).getContent();
 
         assertThat(foundRequests).isNotEmpty();
         assertThat(foundRequests).contains(request2);

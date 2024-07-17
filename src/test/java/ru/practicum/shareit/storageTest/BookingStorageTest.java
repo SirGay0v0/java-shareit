@@ -54,7 +54,7 @@ public class BookingStorageTest {
                 .setStatus(Status.WAITING);
         bookingStorage.save(booking);
 
-        Page<Booking> bookings = bookingStorage.findByBookerIdOrderByStartDesc(
+        Page<Booking> bookings = bookingStorage.findByBookerId(
                 user.getId(), PageRequest.of(0, 10));
 
         assertThat(bookings.getContent()).isNotEmpty();
@@ -83,7 +83,7 @@ public class BookingStorageTest {
                 .setStatus(Status.WAITING);
         bookingStorage.save(booking);
 
-        Page<Booking> bookings = bookingStorage.findByItemOwnerIdOrderByStartDesc(
+        Page<Booking> bookings = bookingStorage.findByItemOwnerId(
                 user.getId(), PageRequest.of(0, 10));
 
         assertThat(bookings.getContent()).isNotEmpty();
@@ -224,8 +224,11 @@ public class BookingStorageTest {
                 .setStatus(Status.WAITING);
         bookingStorage.save(booking);
 
-        Booking foundBooking = bookingStorage.findFirstByItemIdAndStatusAndStartIsAfterOrderByStart(
-                item.getId(), Status.WAITING, LocalDateTime.now());
+        Booking foundBooking = bookingStorage.findBookingByIdStatusStartAfter(
+                item.getId(),
+                Status.WAITING,
+                LocalDateTime.now()
+        ).stream().findFirst().get();
 
         assertThat(foundBooking).isNotNull();
         assertThat(foundBooking).isEqualTo(booking);
@@ -253,8 +256,12 @@ public class BookingStorageTest {
                 .setStatus(Status.WAITING);
         bookingStorage.save(booking);
 
-        Booking foundBooking = bookingStorage.findFirstByItemIdAndStatusAndStartIsBeforeOrderByEndDesc(
-                item.getId(), Status.WAITING, LocalDateTime.now());
+        Booking foundBooking = bookingStorage.findBookingByIdStatusStartBefore(
+                        item.getId(),
+                        Status.WAITING,
+                        LocalDateTime.now())
+                .stream()
+                .findFirst().get();
 
         assertThat(foundBooking).isNotNull();
         assertThat(foundBooking).isEqualTo(booking);

@@ -1,6 +1,5 @@
 package ru.practicum.shareit.requests.service;
 
-import org.springframework.data.domain.PageRequest;
 import ru.practicum.shareit.requests.dto.CreateRequestDto;
 import ru.practicum.shareit.requests.dto.RequestForUserDto;
 import ru.practicum.shareit.requests.model.Request;
@@ -13,7 +12,7 @@ public interface RequestService {
 
     List<RequestForUserDto> getAllById(Long authorId);
 
-    List<RequestForUserDto> getAllFromOtherUsers(PageRequest pageRequest, Long userId);
+    List<RequestForUserDto> getAllFromOtherUsers(Long userId, int from, int size);
 
     RequestForUserDto getRequestById(Long requestId, Long userId);
 }

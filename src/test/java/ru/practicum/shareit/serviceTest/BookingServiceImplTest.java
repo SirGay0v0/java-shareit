@@ -212,7 +212,7 @@ public class BookingServiceImplTest {
     @DirtiesContext(methodMode = DirtiesContext.MethodMode.AFTER_METHOD)
     @Test
     public void testGetListUserBookingsByStatus() {
-        when(storage.findByBookerIdOrderByStartDesc(anyLong(), any(PageRequest.class)))
+        when(storage.findByBookerId(anyLong(), any(PageRequest.class)))
                 .thenReturn(new PageImpl<>(Collections.singletonList(booking)));
         when(mapper.map(any(), eq(RequestBookingDto.class))).thenReturn(requestBookingDto);
 
@@ -220,13 +220,13 @@ public class BookingServiceImplTest {
 
         assertNotNull(result);
         assertEquals(1, result.size());
-        verify(storage, times(1)).findByBookerIdOrderByStartDesc(anyLong(), any(PageRequest.class));
+        verify(storage, times(1)).findByBookerId(anyLong(), any(PageRequest.class));
     }
 
     @DirtiesContext(methodMode = DirtiesContext.MethodMode.AFTER_METHOD)
     @Test
     public void testGetListOwnerBookingsByStatus() {
-        when(storage.findByItemOwnerIdOrderByStartDesc(anyLong(), any(PageRequest.class)))
+        when(storage.findByItemOwnerId(anyLong(), any(PageRequest.class)))
                 .thenReturn(new PageImpl<>(Collections.singletonList(booking)));
         when(mapper.map(any(), eq(RequestBookingDto.class))).thenReturn(requestBookingDto);
 
@@ -234,7 +234,7 @@ public class BookingServiceImplTest {
 
         assertNotNull(result);
         assertEquals(1, result.size());
-        verify(storage, times(1)).findByItemOwnerIdOrderByStartDesc(anyLong(), any(PageRequest.class));
+        verify(storage, times(1)).findByItemOwnerId(anyLong(), any(PageRequest.class));
     }
 
     @DirtiesContext(methodMode = DirtiesContext.MethodMode.AFTER_METHOD)

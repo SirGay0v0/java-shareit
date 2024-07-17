@@ -30,11 +30,12 @@ public class RequestValidator {
         );
     }
 
-    public void validatePage(Long ownerId, PageRequest pageRequest) {
+    public PageRequest createPageAndValidateUser(int from, int size, Long ownerId) {
         validateById(ownerId);
-        if (pageRequest.getPageNumber() < 0 || pageRequest.getPageSize() < 1) {
+        if (from < 0 || size < 1) {
             throw new ValidationException("Params from or size has wrong value!");
         }
+        return PageRequest.of(from / size, size);
     }
 
     public void validateRequestAndId(Long requestId, Long userId) {

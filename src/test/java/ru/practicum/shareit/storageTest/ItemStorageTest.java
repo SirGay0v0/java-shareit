@@ -45,9 +45,12 @@ public class ItemStorageTest {
         itemStorage.save(item);
 
         PageRequest pageRequest = PageRequest.of(0, 10);
+
         List<Item> foundItems = itemStorage
-                .findByNameContainsIgnoringCaseOrDescriptionContainsIgnoringCaseAndAvailableIsTrue(
-                        "test", "test", pageRequest).getContent();
+                .findItemsWhichContainsText(
+                        "test",
+                        "test",
+                        pageRequest).getContent();
 
         assertThat(foundItems).isNotEmpty();
         assertThat(foundItems).contains(item);
@@ -76,7 +79,7 @@ public class ItemStorageTest {
         itemStorage.save(item2);
 
         PageRequest pageRequest = PageRequest.of(0, 10);
-        List<Item> foundItems = itemStorage.findByOwnerId(pageRequest, owner.getId()).getContent();
+        List<Item> foundItems = itemStorage.findByOwnerId(owner.getId(), pageRequest).getContent();
 
         assertThat(foundItems).isNotEmpty();
         assertThat(foundItems).contains(item1, item2);

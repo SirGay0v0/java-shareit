@@ -17,7 +17,6 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public User create(User user) {
-        //validator.validateByEmail(user);
         return storage.save(user);
     }
 

@@ -4,7 +4,6 @@ import lombok.RequiredArgsConstructor;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.test.context.ActiveProfiles;
 import ru.practicum.shareit.requests.dto.CreateRequestDto;
 import ru.practicum.shareit.requests.dto.RequestForUserDto;
@@ -48,8 +47,8 @@ public class RequestServiceImplIntegrationTest {
 
         Request savedRequest = requestService.create(createRequestDto, savedAuthor.getId());
 
-        PageRequest pageRequest = PageRequest.of(0, 10);
-        List<RequestForUserDto> requests = requestService.getAllFromOtherUsers(pageRequest, savedOtherUser.getId());
+        List<RequestForUserDto> requests = requestService.getAllFromOtherUsers(
+                savedOtherUser.getId(), 0, 10);
 
         assertNotNull(requests);
         assertFalse(requests.isEmpty());

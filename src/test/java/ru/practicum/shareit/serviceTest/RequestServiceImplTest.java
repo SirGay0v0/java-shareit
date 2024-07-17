@@ -31,6 +31,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.eq;
@@ -226,15 +227,15 @@ public class RequestServiceImplTest {
     @Test
     public void getAllFromOtherUsers_shouldThrowValidationException_whenInvalidPageRequest() {
         doThrow(new ValidationException("Params from or size has wrong value!"))
-                .when(validator).validatePage(anyLong(), any(PageRequest.class));
+                .when(validator).createPageAndValidateUser(anyInt(), anyInt(), anyLong());
 
         ValidationException exception = assertThrows(ValidationException.class,
-                () -> service.getAllFromOtherUsers(pageRequest, authorId));
+                () -> service.getAllFromOtherUsers(authorId, 0, 10));
         assertEquals("Params from or size has wrong value!", exception.getMessage());
 
-        verify(validator, times(1)).validatePage(anyLong(),
-                any(PageRequest.class));
-        verify(storage, never()).findAllByAuthorNotInOrderByCreatedDesc(anyList(),
+        verify(validator, times(1)).createPageAndValidateUser(anyInt(),
+                anyInt(), anyLong());
+        verify(storage, never()).findAllByAuthorNotIn(anyList(),
                 any(PageRequest.class));
         verify(itemStorage, never()).findAllByRequestId(anyLong());
         verify(mapper, never()).map(any(Request.class),

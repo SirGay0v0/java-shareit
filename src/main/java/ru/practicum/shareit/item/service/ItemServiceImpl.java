@@ -2,7 +2,6 @@ package ru.practicum.shareit.item.service;
 
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
@@ -100,9 +99,10 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
-    public List<ItemForOwnerDto> getAllById(PageRequest pageRequest, Long userId) {
+    public List<ItemForOwnerDto> getAllById(Long userId, int from, int size) {
 
-        List<ItemForOwnerDto> list = storage.findByOwnerId(pageRequest, userId).stream()
+        List<ItemForOwnerDto> list = storage.findByOwnerId(userId,
+                        PageRequest.of(from / size, size)).stream()
                 .map(item -> mapper.map(item, ItemForOwnerDto.class))
                 .collect(Collectors.toList());
 
@@ -141,15 +141,15 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
-    public List<Item> searchItems(PageRequest pageRequest, String request) {
-        Page<Item> page = storage.findByNameContainsIgnoringCaseOrDescriptionContainsIgnoringCaseAndAvailableIsTrue(
-                request,
-                request,
-                pageRequest);
+    public List<Item> searchItems(String request, int from, int size) {
         if (!StringUtils.hasText(request)) {
             return Collections.emptyList();
         } else {
-            return page.getContent();
+            return storage.findItemsWhichContainsText(
+                            request,
+                            request,
+                            PageRequest.of(from / size, size))
+                    .getContent();
         }
     }
 
@@ -166,13 +166,14 @@ public class ItemServiceImpl implements ItemService {
     private NextBookingDto getNext(Long itemId) {
         NextBookingDto next = null;
         try {
-            next = mapper.map(
-                    bookingStorage.findFirstByItemIdAndStatusAndStartIsAfterOrderByStart(
-                            itemId,
-                            Status.APPROVED,
-                            LocalDateTime.now()),
-                    NextBookingDto.class
-            );
+
+            next = mapper.map(bookingStorage.findBookingByIdStatusStartAfter(
+                                    itemId,
+                                    Status.APPROVED,
+                                    LocalDateTime.now())
+                            .stream()
+                            .findFirst(),
+                    NextBookingDto.class);
         } catch (IllegalArgumentException ignored) {
         }
         return next;
@@ -182,10 +183,10 @@ public class ItemServiceImpl implements ItemService {
         LastBookingDto last = null;
         try {
             last = mapper.map(
-                    bookingStorage.findFirstByItemIdAndStatusAndStartIsBeforeOrderByEndDesc(
+                    bookingStorage.findBookingByIdStatusStartBefore(
                             itemId,
                             Status.APPROVED,
-                            LocalDateTime.now()),
+                            LocalDateTime.now()).stream().findFirst(),
                     LastBookingDto.class
             );
         } catch (IllegalArgumentException ignored) {

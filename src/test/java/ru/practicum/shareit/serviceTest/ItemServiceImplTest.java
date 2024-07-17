@@ -214,8 +214,8 @@ public class ItemServiceImplTest {
     @Test
     void getAllById_shouldReturnItemsForOwner_whenValidInput() {
         Page<Item> itemsPage = new PageImpl<>(List.of(item));
-        when(itemStorage.findByOwnerId(any(PageRequest.class),
-                anyLong())).thenReturn(itemsPage);
+        when(itemStorage.findByOwnerId(anyLong(), any(PageRequest.class)
+        )).thenReturn(itemsPage);
         when(mapper.map(any(Item.class),
                 eq(ItemForOwnerDto.class))).thenReturn(itemForOwnerDto);
         when(bookingStorage.findByItemId(anyLong())).thenReturn(List.of(booking));
@@ -228,12 +228,12 @@ public class ItemServiceImplTest {
         when(mapper.map(any(),
                 eq(LastBookingDto.class))).thenReturn(lastBookingDto);
 
-        List<ItemForOwnerDto> result = service.getAllById(pageRequest, ownerId);
+        List<ItemForOwnerDto> result = service.getAllById(ownerId, 0, 10);
 
         assertNotNull(result);
         assertEquals(1, result.size());
         verify(itemStorage, times(1))
-                .findByOwnerId(any(PageRequest.class), anyLong());
+                .findByOwnerId(anyLong(), any(PageRequest.class));
         verify(mapper, times(1)).map(any(Item.class),
                 eq(ItemForOwnerDto.class));
         verify(bookingStorage, times(1)).findByItemId(anyLong());
@@ -246,16 +246,16 @@ public class ItemServiceImplTest {
     @Test
     void searchItems_shouldReturnItems_whenRequestIsNotBlank() {
         Page<Item> itemsPage = new PageImpl<>(List.of(item));
-        when(itemStorage.findByNameContainsIgnoringCaseOrDescriptionContainsIgnoringCaseAndAvailableIsTrue(
+        when(itemStorage.findItemsWhichContainsText(
                 anyString(), anyString(), any(PageRequest.class)))
                 .thenReturn(itemsPage);
 
-        List<Item> result = service.searchItems(pageRequest, "Test");
+        List<Item> result = service.searchItems("Test", 0, 10);
 
         assertNotNull(result);
         assertEquals(1, result.size());
         verify(itemStorage, times(1))
-                .findByNameContainsIgnoringCaseOrDescriptionContainsIgnoringCaseAndAvailableIsTrue(anyString(),
+                .findItemsWhichContainsText(anyString(),
                         anyString(), any(PageRequest.class));
     }
 

@@ -4,7 +4,9 @@ import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.storage.ItemStorage;
 import ru.practicum.shareit.requests.dto.CreateRequestDto;
 import ru.practicum.shareit.requests.dto.RequestForUserDto;
@@ -55,21 +57,28 @@ public class RequestServiceImpl implements RequestService {
     }
 
     @Override
-    public List<RequestForUserDto> getAllFromOtherUsers(PageRequest pageRequest, Long userId) {
-        validator.validatePage(userId, pageRequest);
-        Page<Request> requestPage = storage.findAllByAuthorNotInOrderByCreatedDesc(List.of(userId), pageRequest);
+    public List<RequestForUserDto> getAllFromOtherUsers(Long userId, int from, int size) {
+        PageRequest pageRequest = validator.createPageAndValidateUser(from, size, userId);
+
+        Page<Request> requestPage = storage.findAllByAuthorNotIn(
+                List.of(userId), pageRequest.withSort(Sort.Direction.DESC, "created"));
 
         List<RequestForUserDto> requestDto = requestPage.getContent().stream()
                 .map(request -> mapper.map(request, RequestForUserDto.class))
                 .collect(Collectors.toList());
 
-        for (RequestForUserDto request : requestDto) {
-            List<ResponseDto> responsList = itemStorage.findAllByRequestId(request.getId()).stream()
-                    .map(response -> mapper.map(response, ResponseDto.class))
-                    .collect(Collectors.toList());
+        List<Long> listOfIds = requestDto.stream()
+                .map(RequestForUserDto::getId)
+                .collect(Collectors.toList());
 
-            RequestForUserDto requestForUserDto = mapper.map(request, RequestForUserDto.class);
-            requestForUserDto.setItems(responsList);
+        List<Item> responseAllList = itemStorage.findAllByRequestIdIn(listOfIds);
+
+        for (RequestForUserDto request : requestDto) {
+            List<ResponseDto> requestForUserDtoList = responseAllList.stream()
+                    .filter(item -> item.getRequestId().equals(request.getId()))
+                    .map(item -> mapper.map(item, ResponseDto.class))
+                    .collect(Collectors.toList());
+            request.setItems(requestForUserDtoList);
         }
         return requestDto;
     }

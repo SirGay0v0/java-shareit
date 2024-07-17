@@ -24,6 +24,7 @@ import ru.practicum.shareit.item.service.ItemService;
 import java.util.List;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -118,8 +119,8 @@ public class ItemControllerTest {
 
     @Test
     public void testGetAllItems() throws Exception {
-        Mockito.when(itemService.getAllById(any(PageRequest.class),
-                anyLong())).thenReturn(List.of(itemForOwnerDto));
+        Mockito.when(itemService.getAllById(anyLong(), anyInt(), anyInt()
+        )).thenReturn(List.of(itemForOwnerDto));
 
         mockMvc.perform(get("/items")
                         .header("X-Sharer-User-Id", 1L)
@@ -133,8 +134,8 @@ public class ItemControllerTest {
 
     @Test
     public void testSearchItems() throws Exception {
-        Mockito.when(itemService.searchItems(any(PageRequest.class),
-                anyString())).thenReturn(List.of(item));
+        Mockito.when(itemService.searchItems(anyString(), anyInt(), anyInt()
+        )).thenReturn(List.of(item));
 
         mockMvc.perform(get("/items/search")
                         .param("text", "Item")

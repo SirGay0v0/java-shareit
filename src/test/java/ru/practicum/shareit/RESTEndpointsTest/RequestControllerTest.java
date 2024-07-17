@@ -24,6 +24,7 @@ import java.util.Collections;
 import java.util.List;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -90,8 +91,8 @@ public class RequestControllerTest {
 
     @Test
     public void testGetRequestsAnotherUsers() throws Exception {
-        Mockito.when(requestService.getAllFromOtherUsers(any(PageRequest.class),
-                anyLong())).thenReturn(List.of(requestForUserDto));
+        Mockito.when(requestService.getAllFromOtherUsers(anyLong(), anyInt(), anyInt()
+        )).thenReturn(List.of(requestForUserDto));
 
         mockMvc.perform(get("/requests/all")
                         .header("X-Sharer-User-Id", 1L)

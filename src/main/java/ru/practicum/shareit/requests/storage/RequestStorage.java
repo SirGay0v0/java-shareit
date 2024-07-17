@@ -13,7 +13,7 @@ public interface RequestStorage extends JpaRepository<Request, Long> {
 
     List<Request> findAllByAuthorIs(Long ownerId);
 
-    Page<Request> findAllByAuthorNotInOrderByCreatedDesc(List<Long> author, PageRequest pageRequest);
+    Page<Request> findAllByAuthorNotIn(List<Long> author, PageRequest pageRequest);
 
     Request findAllById(Long requestId);
 }

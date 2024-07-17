@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.booking.dto.CreateBookingDto;
 import ru.practicum.shareit.booking.dto.ItemBookingDto;
@@ -101,14 +102,16 @@ public class BookingServiceImpl implements BookingService {
     @Override
     public List<RequestBookingDto> getListUserBookingsByStatus(String state, Long bookerId, int from, int size) {
         validator.validatePage(from, size, bookerId);
-        Page<Booking> page = storage.findByBookerIdOrderByStartDesc(bookerId, PageRequest.of(from / size, size));
+        Page<Booking> page = storage.findByBookerId(bookerId,
+                PageRequest.of(from / size, size, Sort.Direction.DESC, "start"));
         return resultListByState(state, page.getContent());
     }
 
     @Override
     public List<RequestBookingDto> getListOwnerBookingsByStatus(String state, Long ownerId, int from, int size) {
         validator.validatePage(from, size, ownerId);
-        Page<Booking> page = storage.findByItemOwnerIdOrderByStartDesc(ownerId, PageRequest.of(from / size, size));
+        Page<Booking> page = storage.findByItemOwnerId(ownerId,
+                PageRequest.of(from / size, size, Sort.Direction.DESC, "start"));
         return resultListByState(state, page.getContent());
     }
 
