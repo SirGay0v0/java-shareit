@@ -30,11 +30,11 @@ public interface BookingStorage extends JpaRepository<Booking, Long> {
             "FROM Booking b " +
             "WHERE b.item.id = ?1 AND b.status = ?2 AND b.start > ?3 " +
             "ORDER BY b.start ASC")
-    List<Booking> findBookingByIdStatusStartAfter(Long itemId, Status status, LocalDateTime now);
+    Page<Booking> findBookingByIdStatusStartAfter(Long itemId, Status status, LocalDateTime now, PageRequest pageRequest);
 
     @Query("SELECT b " +
             "FROM Booking b " +
             "WHERE b.item.id = ?1 AND b.status = ?2 AND b.start < ?3 " +
             "ORDER BY b.end DESC")
-    List<Booking> findBookingByIdStatusStartBefore(Long itemId, Status status, LocalDateTime now);
+    Page<Booking> findBookingByIdStatusStartBefore(Long itemId, Status status, LocalDateTime now, PageRequest pageRequest);
 }

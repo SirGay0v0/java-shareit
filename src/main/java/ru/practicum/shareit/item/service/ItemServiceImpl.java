@@ -170,8 +170,9 @@ public class ItemServiceImpl implements ItemService {
             next = mapper.map(bookingStorage.findBookingByIdStatusStartAfter(
                                     itemId,
                                     Status.APPROVED,
-                                    LocalDateTime.now())
-                            .stream()
+                                    LocalDateTime.now(),
+                                    PageRequest.of(0, 10))
+                            .getContent().stream()
                             .findFirst(),
                     NextBookingDto.class);
         } catch (IllegalArgumentException ignored) {
@@ -184,9 +185,12 @@ public class ItemServiceImpl implements ItemService {
         try {
             last = mapper.map(
                     bookingStorage.findBookingByIdStatusStartBefore(
-                            itemId,
-                            Status.APPROVED,
-                            LocalDateTime.now()).stream().findFirst(),
+                                    itemId,
+                                    Status.APPROVED,
+                                    LocalDateTime.now(),
+                                    PageRequest.of(0, 10))
+                            .getContent().stream()
+                            .findFirst(),
                     LastBookingDto.class
             );
         } catch (IllegalArgumentException ignored) {
