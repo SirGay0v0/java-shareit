@@ -12,11 +12,9 @@ import ru.practicum.shareit.user.storage.UserStorage;
 public class UserValidator {
     private final UserStorage storage;
 
-    public String validateByEmail(User user) {
+    public void validateByEmail(User user) {
         if (storage.findByEmail(user.getEmail()).isPresent()) {
             throw new InternalServerException("User with email: " + user.getEmail() + " already exist");
-        } else {
-            return user.getEmail();
         }
     }
 

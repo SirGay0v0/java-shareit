@@ -11,5 +11,5 @@ import java.util.List;
 public interface CommentsStorage extends JpaRepository<Comment, Long> {
 
     @Query(value = "FROM Comment c WHERE c.item.id = ?1")
-    List<Comment> findByItemContaining(Long itemId);
+    List<Comment> findByItemId(Long itemId);
 }

@@ -1,4 +1,4 @@
-package ru.practicum.shareit.item.comments.dto;
+package ru.practicum.shareit.requests.dto;
 
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -10,6 +10,6 @@ import lombok.experimental.FieldDefaults;
 @Setter
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @Accessors(chain = true)
-public class CreateCommentDto {
-    String text;
+public class CreateRequestDto {
+    String description;
 }

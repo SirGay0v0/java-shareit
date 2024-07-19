@@ -52,4 +52,11 @@ public class BookingValidator {
         return bookingStorage.findById(bookingId).orElseThrow(
                 () -> new NotFoundException("No such booking with ID: " + bookingId));
     }
+
+    public void validatePage(int from, int size, Long bookerId) {
+        validateBooker(bookerId);
+        if (from < 0 || size < 1) {
+            throw new ValidationException("Params from or size has wrong value!");
+        }
+    }
 }

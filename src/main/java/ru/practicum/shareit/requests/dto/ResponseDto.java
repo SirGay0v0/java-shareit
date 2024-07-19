@@ -1,24 +1,19 @@
-package ru.practicum.shareit.item.dto;
+package ru.practicum.shareit.requests.dto;
 
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Accessors;
 import lombok.experimental.FieldDefaults;
-import ru.practicum.shareit.item.comments.dto.RequestCommentDto;
-
-import java.util.List;
 
 @Getter
 @Setter
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @Accessors(chain = true)
-public class ItemForOwnerDto {
+public class ResponseDto {
     Long id;
     String name;
     String description;
+    Long requestId;
     Boolean available;
-    LastBookingDto lastBooking;
-    NextBookingDto nextBooking;
-    List<RequestCommentDto> comments;
 }
