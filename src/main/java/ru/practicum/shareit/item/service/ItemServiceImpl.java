@@ -2,6 +2,7 @@ package ru.practicum.shareit.item.service;
 
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
@@ -26,6 +27,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -166,33 +168,33 @@ public class ItemServiceImpl implements ItemService {
     private NextBookingDto getNext(Long itemId) {
         NextBookingDto next = null;
         try {
+            Page<Booking> bookingPage = bookingStorage.findBookingByIdStatusStartAfter(
+                    itemId,
+                    Status.APPROVED,
+                    LocalDateTime.now(),
+                    PageRequest.of(0, 1));
 
-            next = mapper.map(bookingStorage.findBookingByIdStatusStartAfter(
-                                    itemId,
-                                    Status.APPROVED,
-                                    LocalDateTime.now(),
-                                    PageRequest.of(0, 10))
-                            .getContent().stream()
-                            .findFirst(),
-                    NextBookingDto.class);
+            if (bookingPage != null && !bookingPage.isEmpty()) {
+                next = mapper.map(bookingPage.getContent().get(0), NextBookingDto.class);
+            }
         } catch (IllegalArgumentException ignored) {
         }
         return next;
     }
 
+
     private LastBookingDto getLast(Long itemId) {
         LastBookingDto last = null;
         try {
-            last = mapper.map(
-                    bookingStorage.findBookingByIdStatusStartBefore(
-                                    itemId,
-                                    Status.APPROVED,
-                                    LocalDateTime.now(),
-                                    PageRequest.of(0, 10))
-                            .getContent().stream()
-                            .findFirst(),
-                    LastBookingDto.class
-            );
+            Page<Booking> bookingPage = bookingStorage.findBookingByIdStatusStartBefore(
+                    itemId,
+                    Status.APPROVED,
+                    LocalDateTime.now(),
+                    PageRequest.of(0, 1));
+
+            if (bookingPage != null && !bookingPage.isEmpty()) {
+                last = mapper.map(bookingPage.getContent().get(0), LastBookingDto.class);
+            }
         } catch (IllegalArgumentException ignored) {
         }
         return last;

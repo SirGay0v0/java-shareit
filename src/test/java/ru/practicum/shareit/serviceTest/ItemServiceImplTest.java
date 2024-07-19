@@ -183,64 +183,88 @@ public class ItemServiceImplTest {
     @DirtiesContext(methodMode = DirtiesContext.MethodMode.AFTER_METHOD)
     @Test
     void getItemById_shouldReturnItemForOwnerDto_whenValidInput() {
+        // Arrange
         when(validator.validateItem(anyLong())).thenReturn(item);
-        when(mapper.map(any(Item.class),
-                eq(ItemForOwnerDto.class))).thenReturn(itemForOwnerDto);
-        when(bookingStorage.findByItemIdAndStatus(anyLong(),
-                eq(Status.APPROVED))).thenReturn(List.of(booking));
+        when(mapper.map(any(Item.class), eq(ItemForOwnerDto.class))).thenReturn(itemForOwnerDto);
+        when(bookingStorage.findByItemIdAndStatus(anyLong(), eq(Status.APPROVED))).thenReturn(List.of(booking));
         when(commentsStorage.findByItemId(anyLong())).thenReturn(List.of(comment));
-        when(mapper.map(any(Comment.class),
-                eq(RequestCommentDto.class))).thenReturn(requestCommentDto);
+        when(mapper.map(any(Comment.class), eq(RequestCommentDto.class))).thenReturn(requestCommentDto);
 
         // Mock the getNext and getLast methods to return expected NextBookingDto and LastBookingDto
-        when(mapper.map(any(), eq(NextBookingDto.class))).thenReturn(nextBookingDto);
-        when(mapper.map(any(), eq(LastBookingDto.class))).thenReturn(lastBookingDto);
+        Page<Booking> nextBookingPage = new PageImpl<>(List.of(booking));
+        when(bookingStorage.findBookingByIdStatusStartAfter(anyLong(), eq(Status.APPROVED), any(LocalDateTime.class), any(PageRequest.class)))
+                .thenReturn(nextBookingPage);
 
+        Page<Booking> lastBookingPage = new PageImpl<>(List.of(booking));
+        when(bookingStorage.findBookingByIdStatusStartBefore(anyLong(), eq(Status.APPROVED), any(LocalDateTime.class), any(PageRequest.class)))
+                .thenReturn(lastBookingPage);
+
+        when(mapper.map(any(Booking.class), eq(NextBookingDto.class))).thenReturn(nextBookingDto);
+        when(mapper.map(any(Booking.class), eq(LastBookingDto.class))).thenReturn(lastBookingDto);
+
+        // Act
         ItemForOwnerDto result = service.getItemById(itemId, ownerId);
 
+        // Assert
         assertNotNull(result);
         assertEquals(itemForOwnerDto.getId(), result.getId());
         verify(validator, times(1)).validateItem(anyLong());
-        verify(mapper, times(1)).map(any(Item.class),
-                eq(ItemForOwnerDto.class));
-        verify(bookingStorage, times(1))
-                .findByItemIdAndStatus(anyLong(), eq(Status.APPROVED));
+        verify(mapper, times(1)).map(any(Item.class), eq(ItemForOwnerDto.class));
+        verify(bookingStorage, times(1)).findByItemIdAndStatus(anyLong(), eq(Status.APPROVED));
         verify(commentsStorage, times(1)).findByItemId(anyLong());
-        verify(mapper, times(1)).map(any(Comment.class),
-                eq(RequestCommentDto.class));
+        verify(mapper, times(1)).map(any(Comment.class), eq(RequestCommentDto.class));
+        verify(bookingStorage, times(1)).findBookingByIdStatusStartAfter(anyLong(), eq(Status.APPROVED), any(LocalDateTime.class), any(PageRequest.class));
+        verify(mapper, times(1)).map(any(Booking.class), eq(NextBookingDto.class));
+        verify(bookingStorage, times(1)).findBookingByIdStatusStartBefore(anyLong(), eq(Status.APPROVED), any(LocalDateTime.class), any(PageRequest.class));
+        verify(mapper, times(1)).map(any(Booking.class), eq(LastBookingDto.class));
     }
 
     @DirtiesContext(methodMode = DirtiesContext.MethodMode.AFTER_METHOD)
     @Test
     void getAllById_shouldReturnItemsForOwner_whenValidInput() {
         Page<Item> itemsPage = new PageImpl<>(List.of(item));
-        when(itemStorage.findByOwnerId(anyLong(), any(PageRequest.class)
-        )).thenReturn(itemsPage);
-        when(mapper.map(any(Item.class),
-                eq(ItemForOwnerDto.class))).thenReturn(itemForOwnerDto);
-        when(bookingStorage.findByItemId(anyLong())).thenReturn(List.of(booking));
-        when(commentsStorage.findByItemId(anyLong())).thenReturn(List.of(comment));
-        when(mapper.map(any(Comment.class),
-                eq(RequestCommentDto.class))).thenReturn(requestCommentDto);
+        when(itemStorage.findByOwnerId(anyLong(), any(PageRequest.class)))
+                .thenReturn(itemsPage);
+        when(mapper.map(any(Item.class), eq(ItemForOwnerDto.class)))
+                .thenReturn(itemForOwnerDto);
+        when(bookingStorage.findByItemId(anyLong()))
+                .thenReturn(List.of(booking));
+        when(commentsStorage.findByItemId(anyLong()))
+                .thenReturn(List.of(comment));
+        when(mapper.map(any(Comment.class), eq(RequestCommentDto.class)))
+                .thenReturn(requestCommentDto);
 
-        when(mapper.map(any(),
-                eq(NextBookingDto.class))).thenReturn(nextBookingDto);
-        when(mapper.map(any(),
-                eq(LastBookingDto.class))).thenReturn(lastBookingDto);
+        // Mock the behavior of findBookingByIdStatusStartAfter to return a valid booking
+        Page<Booking> nextBookingPage = new PageImpl<>(List.of(booking));
+        when(bookingStorage.findBookingByIdStatusStartAfter(anyLong(), any(Status.class), any(LocalDateTime.class), any(PageRequest.class)))
+                .thenReturn(nextBookingPage);
+
+        // Mock the behavior of findBookingByIdStatusStartBefore to return a valid booking
+        Page<Booking> lastBookingPage = new PageImpl<>(List.of(booking));
+        when(bookingStorage.findBookingByIdStatusStartBefore(anyLong(), any(Status.class), any(LocalDateTime.class), any(PageRequest.class)))
+                .thenReturn(lastBookingPage);
+
+        when(mapper.map(any(Booking.class), eq(NextBookingDto.class)))
+                .thenReturn(nextBookingDto);
+        when(mapper.map(any(Booking.class), eq(LastBookingDto.class)))
+                .thenReturn(lastBookingDto);
 
         List<ItemForOwnerDto> result = service.getAllById(ownerId, 0, 10);
 
         assertNotNull(result);
         assertEquals(1, result.size());
-        verify(itemStorage, times(1))
-                .findByOwnerId(anyLong(), any(PageRequest.class));
-        verify(mapper, times(1)).map(any(Item.class),
-                eq(ItemForOwnerDto.class));
+        verify(itemStorage, times(1)).findByOwnerId(anyLong(), any(PageRequest.class));
+        verify(mapper, times(1)).map(any(Item.class), eq(ItemForOwnerDto.class));
         verify(bookingStorage, times(1)).findByItemId(anyLong());
         verify(commentsStorage, times(1)).findByItemId(anyLong());
-        verify(mapper, times(1)).map(any(Comment.class),
-                eq(RequestCommentDto.class));
+        verify(mapper, times(1)).map(any(Comment.class), eq(RequestCommentDto.class));
+        verify(bookingStorage, times(1)).findBookingByIdStatusStartAfter(anyLong(), any(Status.class), any(LocalDateTime.class), any(PageRequest.class));
+        verify(mapper, times(1)).map(any(Booking.class), eq(NextBookingDto.class));
+        verify(bookingStorage, times(1)).findBookingByIdStatusStartBefore(anyLong(), any(Status.class), any(LocalDateTime.class), any(PageRequest.class));
+        verify(mapper, times(1)).map(any(Booking.class), eq(LastBookingDto.class));
     }
+
+
 
     @DirtiesContext(methodMode = DirtiesContext.MethodMode.AFTER_METHOD)
     @Test

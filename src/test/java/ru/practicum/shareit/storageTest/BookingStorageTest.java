@@ -227,8 +227,9 @@ public class BookingStorageTest {
         Booking foundBooking = bookingStorage.findBookingByIdStatusStartAfter(
                 item.getId(),
                 Status.WAITING,
-                LocalDateTime.now()
-        ).stream().findFirst().get();
+                LocalDateTime.now(),
+                PageRequest.of(0, 10)
+        ).getContent().stream().findFirst().get();
 
         assertThat(foundBooking).isNotNull();
         assertThat(foundBooking).isEqualTo(booking);
@@ -259,7 +260,9 @@ public class BookingStorageTest {
         Booking foundBooking = bookingStorage.findBookingByIdStatusStartBefore(
                         item.getId(),
                         Status.WAITING,
-                        LocalDateTime.now())
+                        LocalDateTime.now(),
+                        PageRequest.of(0, 10))
+                .getContent()
                 .stream()
                 .findFirst().get();
 
