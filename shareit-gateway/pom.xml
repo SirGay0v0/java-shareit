@@ -34,7 +34,22 @@
             <artifactId>modelmapper</artifactId>
             <version>3.2.0</version>
         </dependency>
+
+        <!--Tests-->
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-api</artifactId>
+            <version>5.11.0-M2</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
+            <version>3.3.2</version>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
+
     <build>
         <plugins>
             <plugin>
@@ -50,7 +65,8 @@
                         <manifest>
                             <addDefaultImplementationEntries>true</addDefaultImplementationEntries>
                             <addDefaultSpecificationEntries>true</addDefaultSpecificationEntries>
-                            <mainClass>ru.practicum.shareit.ShareitGatewayApplication</mainClass> <!-- Change to your main class -->
+                            <mainClass>ru.practicum.shareit.ShareitGatewayApplication
+                            </mainClass> <!-- Change to your main class -->
                         </manifest>
                     </archive>
                 </configuration>

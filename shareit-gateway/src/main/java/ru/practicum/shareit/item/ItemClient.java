@@ -9,13 +9,11 @@ import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import org.springframework.web.util.DefaultUriBuilderFactory;
-import org.springframework.web.util.UriComponentsBuilder;
 import ru.practicum.shareit.client.BaseClient;
 import ru.practicum.shareit.item.comments.dto.CreateCommentDto;
 import ru.practicum.shareit.item.dto.ItemRequestDto;
 
 import java.util.Collections;
-import java.util.List;
 import java.util.Map;
 
 @Service

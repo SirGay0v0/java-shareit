@@ -3,7 +3,6 @@ package ru.practicum.shareit.booking.validation;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import ru.practicum.shareit.booking.dto.CreateBookingDto;
-import ru.practicum.shareit.booking.dto.Status;
 import ru.practicum.shareit.exception.ValidationException;
 
 import java.time.LocalDateTime;

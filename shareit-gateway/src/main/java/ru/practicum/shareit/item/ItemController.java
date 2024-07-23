@@ -11,12 +11,10 @@ import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import ru.practicum.shareit.exception.AccessDeniedException;
 import ru.practicum.shareit.item.comments.dto.CreateCommentDto;
 import ru.practicum.shareit.item.dto.ItemRequestDto;
 
 import javax.validation.Valid;
-import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
@@ -35,7 +33,7 @@ public class ItemController {
     @PatchMapping("/{itemId}")
     public ResponseEntity<Object> update(@RequestHeader("X-Sharer-User-Id") Long userId,
                                                    @PathVariable Long itemId,
-                                                   @RequestBody ItemRequestDto itemRequestDto) throws AccessDeniedException {
+                                                   @RequestBody ItemRequestDto itemRequestDto) {
         return client.updateItem(userId, itemId, itemRequestDto);
     }
 

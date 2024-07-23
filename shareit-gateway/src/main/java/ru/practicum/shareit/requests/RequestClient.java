@@ -11,7 +11,6 @@ import ru.practicum.shareit.client.BaseClient;
 import ru.practicum.shareit.requests.dto.CreateRequestDto;
 import ru.practicum.shareit.requests.validation.RequestValidator;
 
-import java.util.List;
 import java.util.Map;
 
 @Service
