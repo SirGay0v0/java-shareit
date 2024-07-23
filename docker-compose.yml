@@ -1,0 +1,43 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:13
+    environment:
+      POSTGRES_DB: shareIt
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: admin
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+
+  shareit-server:
+    build:
+      context: ./shareit-server
+      dockerfile: Dockerfile
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/shareIt
+      - SPRING_DATASOURCE_USERNAME=admin
+      - SPRING_DATASOURCE_PASSWORD=admin
+      - TZ=Europe/Moscow
+    depends_on:
+      - postgres
+    ports:
+      - "8081:8081"
+      - "8083:8083"
+
+  shareit-gateway:
+    build:
+      context: ./shareit-gateway
+      dockerfile: Dockerfile
+    environment:
+      - SHAREIT_SERVER_URL=http://shareit-server:8081
+    depends_on:
+      - shareit-server
+    ports:
+      - "8080:8080"
+      - "8082:8082"
+
+volumes:
+  postgres-data:
