@@ -20,7 +20,7 @@ services:
       - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/shareIt
       - SPRING_DATASOURCE_USERNAME=admin
       - SPRING_DATASOURCE_PASSWORD=admin
-      - TZ=Europe/Moscow
+#      - TZ=Europe/Moscow
     depends_on:
       - postgres
     ports:
